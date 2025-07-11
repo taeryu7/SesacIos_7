@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>CFBundleDisplayName</key>
+	<string>테스트앱이름</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict/>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>사진 촬영을 위한 카메라 허용 동의</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>생체정보 인증을 위한 얼굴인식 동의</string>
+</dict>
+</plist>
