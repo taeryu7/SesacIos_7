@@ -72,7 +72,7 @@ class FavoritesTableViewController: UITableViewController {
     }
     
     // 스와이프 삭제 활성화
-    /// commit editingStyle
+    /// editingStyle
     /// 사용자가 편집 액션(삭제, 삽입 등)을 확정했을 때 호출되는 메서드
     /// 스와이프 후 "삭제" 버튼을 실제로 눌렀을 때 실행됨
     

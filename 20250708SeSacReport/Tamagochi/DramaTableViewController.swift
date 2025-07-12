@@ -6,13 +6,20 @@
 //
 
 import UIKit
+import Kingfisher
 
-///
+struct Drama {
+    let title: String
+    let date: String
+    let rate: Double
+    let image: String
+}
+
 class DramaTableViewController: UITableViewController {
     
-    let image = ["star.fill", "star", "heart", "heart.fill", "pencil", "xmark", "person", "star.fill", "star", "heart", "heart.fill", "pencil", "xmark", "person", "star.fill", "star", "heart", "heart.fill", "pencil", "xmark", "person", "star.fill", "star", "heart", "heart.fill", "pencil", "xmark", "person", "star.fill", "star", "heart", "heart.fill", "pencil", "xmark", "person"]
+    //let image = ["star.fill", "star", "heart", "heart.fill", "pencil", "xmark", "person"]
     
-    
+    let image: [Drama] = [Drama(title: "서울의 봄", date: "2023년 10월 1일", rate: 4.5, image: "star.fill"), Drama(title: "태양의후예", date: "2023년 10월 1일", rate: 4.7, image: "star.fill"), Drama(title: "도깨비", date: "2023년 10월 1일", rate: 4.9, image: "star.fill"), Drama(title: "야인시대", date: "2023년 10월 1일", rate: 5.0, image: "pencil")]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +40,7 @@ class DramaTableViewController: UITableViewController {
 //        <#code#>
 //    }
     
+    // https://www.chosun.com/resizer/v2/AB4BZQEIFWKMGIBQRZHTLB2AGM.jpg?auth=7d19f35f65796f5cef90b586c7b2ed3d04cf5f7af0efcdb1f8173306cee456a9&width=616
     
     /// 섹션의 갯수를 조정할때 사용
     /// 기본이 1로 잡혀있어서 테이블뷰를 하나만 쓰는경우 써도그만 안써도 그만,
@@ -54,10 +62,14 @@ class DramaTableViewController: UITableViewController {
 //        cell.posterImageView.backgroundColor = .orange
 //        cell.posterImageView.layer.cornerRadius = 10
         //cell.posterImageView.clipsToBounds = true]
+        cell.overViewLabel.text = image[indexPath.row].title
         
-        let name = image[indexPath.row]
+        let name = image[indexPath.row].image
         cell.posterImageView.image = UIImage(systemName: name)
         
+//        let url = URL(string:  "http://www.chosun.com/resizer/v2/AB4BZQEIFWKMGIBQRZHTLB2AGM.jpg?auth=7d19f35f65796f5cef90b586c7b2ed3d04cf5f7af0efcdb1f8173306cee456a9&width=616")
+//        
+//        cell.posterImageView.kf.setImage(with: url)
         
         /// 그냥 if로 설정시 4번이 아닌데도 스크롤 내리거나 올리다보면 지혼자 색상이 바뀌는 경우가 있음, 그때 나머지 영역들도 지정을 해줘야 지혼자 맛탱이가 안감
         /// 남아있는 색상값이 안사라지고 자동으로 적용되는 기현상이라 생각하면됨, 그렇기에 else문으로 컨트롤함

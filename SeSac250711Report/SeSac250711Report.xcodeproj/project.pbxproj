@@ -7,66 +7,76 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B7402C72E20BD7F0020746D /* FSCalendar in Frameworks */ = {isa = PBXBuildFile; productRef = 1B7402C62E20BD7F0020746D /* FSCalendar */; };
-		1B7402CA2E20BE040020746D /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1B7402C92E20BE040020746D /* Kingfisher */; };
+		1BE7A8D72E2234F8006B4A34 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1BE7A8D62E2234F8006B4A34 /* Kingfisher */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1B4A3FBA2E1CEB030073B6C7 /* 20250708SeSacReport.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 20250708SeSacReport.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B7402D42E20EAF70020746D /* SeSac250711Report.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SeSac250711Report.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		1B4A3FCC2E1CEB050073B6C7 /* Exceptions for "20250708SeSacReport" folder in "20250708SeSacReport" target */ = {
+		1B7402E62E20EAF90020746D /* Exceptions for "SeSac250711Report" folder in "SeSac250711Report" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 1B4A3FB92E1CEB030073B6C7 /* 20250708SeSacReport */;
+			target = 1B7402D32E20EAF70020746D /* SeSac250711Report */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		1B4A3FBC2E1CEB030073B6C7 /* 20250708SeSacReport */ = {
+		1B7402D62E20EAF70020746D /* SeSac250711Report */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				1B4A3FCC2E1CEB050073B6C7 /* Exceptions for "20250708SeSacReport" folder in "20250708SeSacReport" target */,
+				1B7402E62E20EAF90020746D /* Exceptions for "SeSac250711Report" folder in "SeSac250711Report" target */,
 			);
-			path = 20250708SeSacReport;
+			path = SeSac250711Report;
 			sourceTree = "<group>";
 		};
-		1B4A3FD42E1DF1E70073B6C7 /* Tamagochi */ = {
+		1BE7A8DC2E225078006B4A34 /* Magazine */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Tamagochi;
+			path = Magazine;
+			sourceTree = "<group>";
+		};
+		1BE7A8DD2E22508A006B4A34 /* 369 */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = 369;
+			sourceTree = "<group>";
+		};
+		1BE7A8DE2E22509A006B4A34 /* Travle */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Travle;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		1B4A3FB72E1CEB030073B6C7 /* Frameworks */ = {
+		1B7402D12E20EAF70020746D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1B7402CA2E20BE040020746D /* Kingfisher in Frameworks */,
-				1B7402C72E20BD7F0020746D /* FSCalendar in Frameworks */,
+				1BE7A8D72E2234F8006B4A34 /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1B4A3FB12E1CEB030073B6C7 = {
+		1B7402CB2E20EAF70020746D = {
 			isa = PBXGroup;
 			children = (
-				1B4A3FD42E1DF1E70073B6C7 /* Tamagochi */,
-				1B4A3FBC2E1CEB030073B6C7 /* 20250708SeSacReport */,
-				1B4A3FBB2E1CEB030073B6C7 /* Products */,
+				1BE7A8DE2E22509A006B4A34 /* Travle */,
+				1BE7A8DD2E22508A006B4A34 /* 369 */,
+				1BE7A8DC2E225078006B4A34 /* Magazine */,
+				1B7402D62E20EAF70020746D /* SeSac250711Report */,
+				1B7402D52E20EAF70020746D /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		1B4A3FBB2E1CEB030073B6C7 /* Products */ = {
+		1B7402D52E20EAF70020746D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1B4A3FBA2E1CEB030073B6C7 /* 20250708SeSacReport.app */,
+				1B7402D42E20EAF70020746D /* SeSac250711Report.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -74,71 +84,71 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1B4A3FB92E1CEB030073B6C7 /* 20250708SeSacReport */ = {
+		1B7402D32E20EAF70020746D /* SeSac250711Report */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1B4A3FCD2E1CEB050073B6C7 /* Build configuration list for PBXNativeTarget "20250708SeSacReport" */;
+			buildConfigurationList = 1B7402E72E20EAF90020746D /* Build configuration list for PBXNativeTarget "SeSac250711Report" */;
 			buildPhases = (
-				1B4A3FB62E1CEB030073B6C7 /* Sources */,
-				1B4A3FB72E1CEB030073B6C7 /* Frameworks */,
-				1B4A3FB82E1CEB030073B6C7 /* Resources */,
+				1B7402D02E20EAF70020746D /* Sources */,
+				1B7402D12E20EAF70020746D /* Frameworks */,
+				1B7402D22E20EAF70020746D /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				1B4A3FBC2E1CEB030073B6C7 /* 20250708SeSacReport */,
-				1B4A3FD42E1DF1E70073B6C7 /* Tamagochi */,
+				1B7402D62E20EAF70020746D /* SeSac250711Report */,
+				1BE7A8DC2E225078006B4A34 /* Magazine */,
+				1BE7A8DD2E22508A006B4A34 /* 369 */,
+				1BE7A8DE2E22509A006B4A34 /* Travle */,
 			);
-			name = 20250708SeSacReport;
+			name = SeSac250711Report;
 			packageProductDependencies = (
-				1B7402C62E20BD7F0020746D /* FSCalendar */,
-				1B7402C92E20BE040020746D /* Kingfisher */,
+				1BE7A8D62E2234F8006B4A34 /* Kingfisher */,
 			);
-			productName = 20250708SeSacReport;
-			productReference = 1B4A3FBA2E1CEB030073B6C7 /* 20250708SeSacReport.app */;
+			productName = SeSac250711Report;
+			productReference = 1B7402D42E20EAF70020746D /* SeSac250711Report.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		1B4A3FB22E1CEB030073B6C7 /* Project object */ = {
+		1B7402CC2E20EAF70020746D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
-					1B4A3FB92E1CEB030073B6C7 = {
+					1B7402D32E20EAF70020746D = {
 						CreatedOnToolsVersion = 16.4;
 					};
 				};
 			};
-			buildConfigurationList = 1B4A3FB52E1CEB030073B6C7 /* Build configuration list for PBXProject "20250708SeSacReport" */;
+			buildConfigurationList = 1B7402CF2E20EAF70020746D /* Build configuration list for PBXProject "SeSac250711Report" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 1B4A3FB12E1CEB030073B6C7;
+			mainGroup = 1B7402CB2E20EAF70020746D;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				1B7402C52E20BD7F0020746D /* XCRemoteSwiftPackageReference "FSCalendar" */,
-				1B7402C82E20BE040020746D /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				1BE7A8D52E2234F8006B4A34 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 1B4A3FBB2E1CEB030073B6C7 /* Products */;
+			productRefGroup = 1B7402D52E20EAF70020746D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1B4A3FB92E1CEB030073B6C7 /* 20250708SeSacReport */,
+				1B7402D32E20EAF70020746D /* SeSac250711Report */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		1B4A3FB82E1CEB030073B6C7 /* Resources */ = {
+		1B7402D22E20EAF70020746D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -148,7 +158,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		1B4A3FB62E1CEB030073B6C7 /* Sources */ = {
+		1B7402D02E20EAF70020746D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -158,7 +168,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		1B4A3FCE2E1CEB050073B6C7 /* Debug */ = {
+		1B7402E82E20EAF90020746D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -166,7 +176,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = 20250708SeSacReport/Info.plist;
+				INFOPLIST_FILE = SeSac250711Report/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -177,15 +187,19 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Ryu.-0250708SeSacReport";
+				PRODUCT_BUNDLE_IDENTIFIER = com.Ryu.SeSac250711Report;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
-		1B4A3FCF2E1CEB050073B6C7 /* Release */ = {
+		1B7402E92E20EAF90020746D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -193,7 +207,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = 20250708SeSacReport/Info.plist;
+				INFOPLIST_FILE = SeSac250711Report/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -204,15 +218,19 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Ryu.-0250708SeSacReport";
+				PRODUCT_BUNDLE_IDENTIFIER = com.Ryu.SeSac250711Report;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
-		1B4A3FD02E1CEB050073B6C7 /* Debug */ = {
+		1B7402EA2E20EAF90020746D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -275,7 +293,7 @@
 			};
 			name = Debug;
 		};
-		1B4A3FD12E1CEB050073B6C7 /* Release */ = {
+		1B7402EB2E20EAF90020746D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -334,20 +352,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1B4A3FB52E1CEB030073B6C7 /* Build configuration list for PBXProject "20250708SeSacReport" */ = {
+		1B7402CF2E20EAF70020746D /* Build configuration list for PBXProject "SeSac250711Report" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				1B4A3FD02E1CEB050073B6C7 /* Debug */,
-				1B4A3FD12E1CEB050073B6C7 /* Release */,
+				1B7402EA2E20EAF90020746D /* Debug */,
+				1B7402EB2E20EAF90020746D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1B4A3FCD2E1CEB050073B6C7 /* Build configuration list for PBXNativeTarget "20250708SeSacReport" */ = {
+		1B7402E72E20EAF90020746D /* Build configuration list for PBXNativeTarget "SeSac250711Report" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				1B4A3FCE2E1CEB050073B6C7 /* Debug */,
-				1B4A3FCF2E1CEB050073B6C7 /* Release */,
+				1B7402E82E20EAF90020746D /* Debug */,
+				1B7402E92E20EAF90020746D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -355,15 +373,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1B7402C52E20BD7F0020746D /* XCRemoteSwiftPackageReference "FSCalendar" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/WenchaoD/FSCalendar.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.8.4;
-			};
-		};
-		1B7402C82E20BE040020746D /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+		1BE7A8D52E2234F8006B4A34 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
@@ -374,17 +384,12 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1B7402C62E20BD7F0020746D /* FSCalendar */ = {
+		1BE7A8D62E2234F8006B4A34 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1B7402C52E20BD7F0020746D /* XCRemoteSwiftPackageReference "FSCalendar" */;
-			productName = FSCalendar;
-		};
-		1B7402C92E20BE040020746D /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1B7402C82E20BE040020746D /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			package = 1BE7A8D52E2234F8006B4A34 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = 1B4A3FB22E1CEB030073B6C7 /* Project object */;
+	rootObject = 1B7402CC2E20EAF70020746D /* Project object */;
 }
