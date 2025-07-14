@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Toast
 
 class ViewController: UIViewController {
 
@@ -19,6 +20,14 @@ class ViewController: UIViewController {
         
         print("test")
         
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        view.backgroundColor = .yellow
+        
+        view.makeToast("안녕하시지", duration: 2, position: .top)
     }
 
 
