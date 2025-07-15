@@ -130,7 +130,6 @@ final class TravleTableViewController: UITableViewController {
         }
     }
     
-    // 이 위치에 추가
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let item = mixedData[indexPath.row]
         
@@ -198,5 +197,36 @@ final class TravleTableViewController: UITableViewController {
                 }
             }
         }.resume()
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let item = mixedData[indexPath.row]
+        
+        if item.type == "ad" {
+            // 광고 셀을 선택했을 때 FullScreen Present
+            let adViewController = storyboard.instantiateViewController(withIdentifier: "adViewController") as! adViewController
+            
+            // 랜덤 광고 메시지 전달
+            let randomAdMessage = adMessageInfo.adMessages.randomElement()!
+            adViewController.adMessage = randomAdMessage.title
+            
+            // NavigationController로 감싸기
+            let navController = UINavigationController(rootViewController: adViewController)
+            navController.modalPresentationStyle = .fullScreen
+            
+            present(navController, animated: true)
+            
+        } else {
+            // 일반 여행 셀을 선택했을 때 DetailTravleViewController로 Push
+            let detailViewController = storyboard.instantiateViewController(withIdentifier: "DetailTravleViewController") as! DetailTravleViewController
+            
+            // 여행 데이터 전달
+            detailViewController.travelData = item.data
+            
+            navigationController?.pushViewController(detailViewController, animated: true)
+        }
     }
 }
