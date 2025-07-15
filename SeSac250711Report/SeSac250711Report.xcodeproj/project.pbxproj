@@ -48,6 +48,11 @@
 			path = Travle;
 			sourceTree = "<group>";
 		};
+		1BF3A2AB2E269E2700913950 /* City */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = City;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +70,7 @@
 		1B7402CB2E20EAF70020746D = {
 			isa = PBXGroup;
 			children = (
+				1BF3A2AB2E269E2700913950 /* City */,
 				1BE7A8DE2E22509A006B4A34 /* Travle */,
 				1BE7A8DD2E22508A006B4A34 /* 369 */,
 				1BE7A8DC2E225078006B4A34 /* Magazine */,
@@ -101,6 +107,7 @@
 				1BE7A8DC2E225078006B4A34 /* Magazine */,
 				1BE7A8DD2E22508A006B4A34 /* 369 */,
 				1BE7A8DE2E22509A006B4A34 /* Travle */,
+				1BF3A2AB2E269E2700913950 /* City */,
 			);
 			name = SeSac250711Report;
 			packageProductDependencies = (

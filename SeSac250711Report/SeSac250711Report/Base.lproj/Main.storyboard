@@ -39,6 +39,7 @@
                         <segue destination="WjN-ay-uzs" kind="relationship" relationship="viewControllers" id="ofS-gg-kIg"/>
                         <segue destination="QjT-Az-gUs" kind="relationship" relationship="viewControllers" id="xe6-Ov-cHw"/>
                         <segue destination="TDU-Ye-nI6" kind="relationship" relationship="viewControllers" id="ZcE-57-D22"/>
+                        <segue destination="6lc-sg-fBh" kind="relationship" relationship="viewControllers" id="iz7-F9-z2y"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="gOg-5V-QET" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -317,6 +318,72 @@
             </objects>
             <point key="canvasLocation" x="-648" y="-133"/>
         </scene>
+        <!--city-->
+        <scene sceneID="aeu-Zc-6as">
+            <objects>
+                <tableViewController id="6lc-sg-fBh" customClass="CityTableViewController" customModule="SeSac250711Report" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="lMW-jH-36n">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <view key="tableHeaderView" contentMode="scaleToFill" id="Ecx-Ue-jaZ">
+                            <rect key="frame" x="0.0" y="0.0" width="393" height="92"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <subviews>
+                                <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="80O-B4-uel">
+                                    <rect key="frame" x="10" y="5" width="373" height="32"/>
+                                    <segments>
+                                        <segment title="모두"/>
+                                        <segment title="국대"/>
+                                        <segment title="해외"/>
+                                    </segments>
+                                </segmentedControl>
+                                <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6Pz-V3-iXA">
+                                    <rect key="frame" x="10" y="41" width="373" height="34"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <textInputTraits key="textInputTraits"/>
+                                    <connections>
+                                        <action selector="citySearchAction:" destination="6lc-sg-fBh" eventType="editingDidEnd" id="OqV-dq-kR5"/>
+                                    </connections>
+                                </textField>
+                            </subviews>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            <constraints>
+                                <constraint firstItem="80O-B4-uel" firstAttribute="leading" secondItem="Ecx-Ue-jaZ" secondAttribute="leading" constant="10" id="5Ot-o1-T2n"/>
+                                <constraint firstAttribute="trailing" secondItem="80O-B4-uel" secondAttribute="trailing" constant="10" id="7Nw-YB-QQ2"/>
+                                <constraint firstItem="80O-B4-uel" firstAttribute="top" secondItem="Ecx-Ue-jaZ" secondAttribute="top" constant="5" id="AYe-rI-IAJ"/>
+                                <constraint firstAttribute="trailing" secondItem="6Pz-V3-iXA" secondAttribute="trailing" constant="10" id="DzP-iY-G6t"/>
+                                <constraint firstItem="6Pz-V3-iXA" firstAttribute="leading" secondItem="Ecx-Ue-jaZ" secondAttribute="leading" constant="10" id="M2G-Nt-LWW"/>
+                                <constraint firstItem="80O-B4-uel" firstAttribute="centerX" secondItem="Ecx-Ue-jaZ" secondAttribute="centerX" id="YMx-Fl-OVs"/>
+                                <constraint firstItem="6Pz-V3-iXA" firstAttribute="top" secondItem="80O-B4-uel" secondAttribute="bottom" constant="5" id="b26-AG-qKO"/>
+                                <constraint firstItem="6Pz-V3-iXA" firstAttribute="centerX" secondItem="Ecx-Ue-jaZ" secondAttribute="centerX" id="eZP-Hk-hzB"/>
+                            </constraints>
+                        </view>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="Vvq-q6-QSy" customClass="CityTableViewCell" customModule="SeSac250711Report" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="142" width="393" height="44.666667938232422"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Vvq-q6-QSy" id="cKo-pf-Orl">
+                                    <rect key="frame" x="0.0" y="0.0" width="393" height="44.666667938232422"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="6lc-sg-fBh" id="M7U-Pb-4y9"/>
+                            <outlet property="delegate" destination="6lc-sg-fBh" id="KuF-1m-PIs"/>
+                        </connections>
+                    </tableView>
+                    <tabBarItem key="tabBarItem" title="city" image="building.fill" catalog="system" id="qJI-xr-YE4"/>
+                    <connections>
+                        <outlet property="citySegument" destination="80O-B4-uel" id="DB3-Bw-ZzU"/>
+                        <outlet property="cityTextLabel" destination="6Pz-V3-iXA" id="MPs-aH-1wu"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="4c2-nX-xY0" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-640.4580152671756" y="536.61971830985919"/>
+        </scene>
         <!--Ad View Controller-->
         <scene sceneID="lHv-N7-GQS">
             <objects>
@@ -429,6 +496,7 @@
     </scenes>
     <resources>
         <image name="airplane.circle.fill" catalog="system" width="128" height="123"/>
+        <image name="building.fill" catalog="system" width="90" height="128"/>
         <image name="magazine.fill" catalog="system" width="110" height="128"/>
         <image name="numbers" catalog="system" width="128" height="61"/>
         <systemColor name="systemBackgroundColor">

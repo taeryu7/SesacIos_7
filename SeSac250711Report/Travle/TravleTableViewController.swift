@@ -77,51 +77,38 @@ final class TravleTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let item = mixedData[indexPath.row]
         
         if item.type == "ad" {
-            // 광고 셀
             let cell = tableView.dequeueReusableCell(withIdentifier: "TravleAdTableViewCell", for: indexPath) as! TravleAdTableViewCell
-            
-            // 랜덤 광고 메시지 선택
             let randomAdMessage = adMessageInfo.adMessages.randomElement()!
             cell.adLabel.text = randomAdMessage.title
-            
-            // 랜덤 색상 다시 설정 (셀이 재사용될 때마다 새로운 색상)
             cell.setRandomBackgroundColor()
-            
             return cell
-            
         } else {
-            // 일반 여행 셀
             let cell = tableView.dequeueReusableCell(withIdentifier: "TravleTableViewCell", for: indexPath) as! TravleTableViewCell
-            
-            // 현재 row의 여행 데이터 가져오기
             let travel = item.data
             
-            // 셀에 데이터 설정 (Magazine 방식과 동일)
             cell.titleLabel.text = travel.title
             cell.descriptionLabel.text = travel.description
             
-            // 평점 별로 표시
             if let grade = travel.grade {
                 cell.gradeLabel.text = createStarRating(rating: grade)
             } else {
                 cell.gradeLabel.text = ""
             }
             
-            // 저장 수 표시
             if let save = travel.save {
                 cell.saveLabel.text = "저장 \(save)"
             } else {
                 cell.saveLabel.text = ""
             }
             
-            // URL로부터 이미지 로드
-            /// 이미지, 데이터 로딩속도가 너무 느림, 뭔가 성능향상을 위한 코드나 최적화 방법을 더 찾아봐야할듯
+            // 이미지 최적화 로딩 코드
             if let imageURL = travel.travel_image {
-                loadImage(from: imageURL, into: cell.travleImageView)
+                Task { @MainActor in
+                    ImageManager.shared.loadImageForCell(from: imageURL, into: cell.travleImageView)
+                }
             } else {
                 cell.travleImageView.image = UIImage(systemName: "photo")
             }

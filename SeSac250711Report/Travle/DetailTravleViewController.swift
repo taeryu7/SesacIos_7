@@ -31,30 +31,21 @@ class DetailTravleViewController: UIViewController {
     func configureUI() {
         guard let travel = travelData else { return }
         
-        // 네비게이션 타이틀 설정
         self.title = travel.title
-        
-        // 제목 설정
         travleTitleLabel.text = travel.title
-        
-        // 설명 설정
         travleDescriptionLabel.text = travel.description ?? "설명이 없습니다."
         
-        // 이미지 설정
         if let imageURL = travel.travel_image {
-            loadImageWithKingfisher(from: imageURL, into: travleImageView)
+            Task { @MainActor in
+                ImageManager.shared.loadImageForDetail(from: imageURL, into: travleImageView)
+            }
         } else {
             travleImageView.image = UIImage(systemName: "photo")
         }
         
-        // 이미지뷰 스타일 설정
-        travleImageView.contentMode = .scaleAspectFill
-        travleImageView.clipsToBounds = true
-        travleImageView.layer.cornerRadius = 12
-        
-        backButton.setTitle(NSLocalizedString("다른 관광지 보러 가기", comment: ""), for: .normal)
+        // 버튼 설정
+        backButton.setTitle("다른 관광지 보러 가기", for: .normal)
         backButton.layer.cornerRadius = 15
-        backButton.layer.masksToBounds = true
         backButton.backgroundColor = .systemBlue
         backButton.setTitleColor(.white, for: .normal)
     }
