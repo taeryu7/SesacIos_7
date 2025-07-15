@@ -1,8 +1,8 @@
 //
 //  ViewController.swift
-//  SeSacWeek3
+//  SeSACWEEK3
 //
-//  Created by 유태호 on 7/11/25.
+//  Created by YoungJin on 7/11/25.
 //
 
 import UIKit
@@ -12,24 +12,25 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        setBackground()
+        
         print(1)
         print(2)
         print(3)
         print(4)
         print(5)
+        print(6)
+        print(7)
+        print(7)
+        print(7)
         
-        print("test")
-        
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        view.backgroundColor = .yellow
-        
-        view.makeToast("안녕하시지", duration: 2, position: .top)
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        view.makeToast("뷰 출현", duration: 2, position: .top)
+    }
 
 }
 

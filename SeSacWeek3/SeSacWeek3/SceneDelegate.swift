@@ -1,8 +1,8 @@
 //
 //  SceneDelegate.swift
-//  SeSacWeek3
+//  SeSACWEEK3
 //
-//  Created by 유태호 on 7/11/25.
+//  Created by YoungJin on 7/11/25.
 //
 
 import UIKit

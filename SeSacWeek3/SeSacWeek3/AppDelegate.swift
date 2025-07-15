@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  SeSacWeek3
+//  SeSACWEEK3
 //
-//  Created by 유태호 on 7/11/25.
+//  Created by YoungJin on 7/11/25.
 //
 
 import UIKit
@@ -14,16 +14,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
         
-        // 만약에 앞으로 뜨는 모든 화면의 텍스트 필드에 글자크기 15, 배경오렌지, 센터로 두고싶을때
-        UITextField.appearance().backgroundColor = .systemOrange
-        UITextField.appearance().font = UIFont.systemFont(ofSize: 15)
-        
+        // 앞으로 뜨는 모든 화면의 텍스트 필드에
+        // 글자크기 15. 배경오렌지. 센터
+        UITextField.appearance().backgroundColor = .yellow
+        UITextField.appearance().font = UIFont.boldSystemFont(ofSize: 30)
+        UITextField.appearance().textAlignment = .center
         
         // 1개의 뷰컨을 제외하고 모든 뷰컨에 키보드가 없다면?
         IQKeyboardManager.shared.isEnabled = true
-        
         return true
     }
 
