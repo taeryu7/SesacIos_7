@@ -49,19 +49,47 @@ class CityTableViewCell: UITableViewCell {
         selectionStyle = .default
     }
     
-    func configure(with city: City) {
-        // | 구분자를 추가한 도시명 표시
-        cityNameKorLabel.text = "\(city.city_name) | \(city.city_english_name)"
+    func configure(with city: City, searchText: String = "") {
+        let combinedCityName = "\(city.city_name) | \(city.city_english_name)"
         
-        // 영문 라벨은 비워두거나 다른 용도로 사용
+        // TextHighlightUtility 사용
+        let highlighter = TextHighlightUtility.shared
+        
+        highlighter.applyHighlightToLabel(
+            label: cityNameKorLabel,
+            text: combinedCityName,
+            searchKeyword: searchText
+        )
+        
+        highlighter.applyHighlightToLabel(
+            label: cityExplainLabel,
+            text: city.city_explain,
+            searchKeyword: searchText
+        )
+        
         cityNameEngLabel.text = ""
-        
-        cityExplainLabel.text = city.city_explain
-        
-        // 이미지 로딩
         loadCityImage(from: city.city_image)
     }
     
+    // 또는 한 번에 여러 라벨 처리
+    func configureWithBatchHighlight(city: City, searchText: String = "") {
+        let combinedCityName = "\(city.city_name) | \(city.city_english_name)"
+        
+        let labelsAndTexts: [(UILabel, String)] = [
+            (cityNameKorLabel, combinedCityName),
+            (cityExplainLabel, city.city_explain)
+        ]
+        
+        TextHighlightUtility.shared.applyHighlightToMultipleLabels(
+            labelsAndTexts: labelsAndTexts,
+            searchKeyword: searchText
+        )
+        
+        cityNameEngLabel.text = ""
+        loadCityImage(from: city.city_image)
+    }
+    
+    // 이미지 로딩 함수
     private func loadCityImage(from urlString: String) {
         guard let url = URL(string: urlString) else {
             cityImageView.image = UIImage(systemName: "photo")

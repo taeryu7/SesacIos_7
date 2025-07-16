@@ -171,30 +171,10 @@ class CityTableViewController: UITableViewController {
         
         let city = filteredCities[indexPath.row]
         
-        // 셀 데이터 설정
-        cell.cityNameKorLabel.text = city.city_name
-        cell.cityNameEngLabel.text = city.city_english_name
-        cell.cityExplainLabel.text = city.city_explain
+        // 현재 검색어 가져오기
+        let currentSearchText = cityTextLabel.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         
-        // 이미지 로딩 (Kingfisher 사용)
-        if let url = URL(string: city.city_image) {
-            let processor = DownsamplingImageProcessor(size: CGSize(width: 120, height: 120))
-            
-            cell.cityImageView.kf.setImage(
-                with: url,
-                placeholder: UIImage(systemName: "photo"),
-                options: [
-                    .processor(processor),
-                    .backgroundDecode,
-                    .cacheOriginalImage,
-                    .transition(.fade(0.2))
-                ]
-            )
-        } else {
-            cell.cityImageView.image = UIImage(systemName: "photo")
-        }
-        
-        cell.configure(with: city)
+        cell.configure(with: city, searchText: currentSearchText)
         
         return cell
     }
