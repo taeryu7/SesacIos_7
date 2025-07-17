@@ -1,14 +1,14 @@
 //
-//  CityTableViewCell.swift
+//  CityCollectionViewCell.swift
 //  SeSac250711Report
 //
-//  Created by 유태호 on 7/15/25.
-//₩
+//  Created by 유태호 on 7/17/25.
+//
 
 import UIKit
 import Kingfisher
 
-class CityTableViewCell: UITableViewCell {
+class CityCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet var cityImageView: UIImageView!
     
@@ -24,69 +24,53 @@ class CityTableViewCell: UITableViewCell {
     }
     
     func configureUI() {
+        // 셀 전체 설정
+        contentView.layer.cornerRadius = 12
+        contentView.layer.masksToBounds = true
+        contentView.backgroundColor = UIColor.systemBackground
+        
+        // 그림자 효과 (선택사항)
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOffset = CGSize(width: 0, height: 2)
+        layer.shadowRadius = 4
+        layer.shadowOpacity = 0.1
+        layer.masksToBounds = false
+        
         // 이미지뷰 설정
         cityImageView.contentMode = .scaleAspectFill
         cityImageView.clipsToBounds = true
-        cityImageView.layer.cornerRadius = 12
+        cityImageView.layer.cornerRadius = 8
         cityImageView.backgroundColor = UIColor.lightGray
         
-        // 한글 도시명 라벨 설정 (검정색)
-        cityNameKorLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        cityNameKorLabel.textColor = .white
+        // 한글 도시명 라벨 설정
+        cityNameKorLabel.font = UIFont.boldSystemFont(ofSize: 14)
+        cityNameKorLabel.textColor = .label
         cityNameKorLabel.numberOfLines = 1
+        cityNameKorLabel.textAlignment = .center
         
-        // 영문 도시명 라벨 설정 (검정색)
+        // 영문 도시명 라벨 설정
         cityNameEngLabel.font = UIFont.systemFont(ofSize: 14)
-        cityNameEngLabel.textColor = .white
+        cityNameEngLabel.textColor = .label
         cityNameEngLabel.numberOfLines = 1
+        cityNameEngLabel.textAlignment = .center
         
-        // 설명 라벨 설정 (검정색)
+        // 설명 라벨 설정
         cityExplainLabel.font = UIFont.systemFont(ofSize: 12)
-        cityExplainLabel.textColor = .white
+        cityExplainLabel.textColor = .tertiaryLabel
         cityExplainLabel.numberOfLines = 2
-        
-        // 셀 선택 스타일
-        selectionStyle = .default
-        
+        cityExplainLabel.textAlignment = .center
+        ///numberOfLines 미적용현상발생, 멘토님께 여쭤볼것
+        cityExplainLabel.numberOfLines = 0
     }
     
-    func configure(with city: City, searchText: String = "") {
+    func configure(with city: City) {
+        
         let combinedCityName = "\(city.city_name) | \(city.city_english_name)"
-        
-        // TextHighlightUtility 사용
-        let highlighter = TextHighlightUtility.shared
-        
-        highlighter.applyHighlightToLabel(
-            label: cityNameKorLabel,
-            text: combinedCityName,
-            searchKeyword: searchText
-        )
-        
-        highlighter.applyHighlightToLabel(
-            label: cityExplainLabel,
-            text: city.city_explain,
-            searchKeyword: searchText
-        )
+        cityNameKorLabel.text = combinedCityName
         
         cityNameEngLabel.text = ""
-        loadCityImage(from: city.city_image)
-    }
-    
-    // 또는 한 번에 여러 라벨 처리
-    func configureWithBatchHighlight(city: City, searchText: String = "") {
-        let combinedCityName = "\(city.city_name) | \(city.city_english_name)"
         
-        let labelsAndTexts: [(UILabel, String)] = [
-            (cityNameKorLabel, combinedCityName),
-            (cityExplainLabel, city.city_explain)
-        ]
-        
-        TextHighlightUtility.shared.applyHighlightToMultipleLabels(
-            labelsAndTexts: labelsAndTexts,
-            searchKeyword: searchText
-        )
-        
-        cityNameEngLabel.text = ""
+        cityExplainLabel.text = city.city_explain
         loadCityImage(from: city.city_image)
     }
     
@@ -97,7 +81,8 @@ class CityTableViewCell: UITableViewCell {
             return
         }
         
-        let processor = DownsamplingImageProcessor(size: CGSize(width: 120, height: 120))
+        // 컬렉션뷰 셀 크기에 맞는 이미지 프로세서
+        let processor = DownsamplingImageProcessor(size: CGSize(width: 150, height: 150))
         
         cityImageView.kf.setImage(
             with: url,
@@ -125,9 +110,5 @@ class CityTableViewCell: UITableViewCell {
         cityNameKorLabel.text = nil
         cityNameEngLabel.text = nil
         cityExplainLabel.text = nil
-    }
-    
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
     }
 }

@@ -46,6 +46,8 @@ class CityTableViewController: UITableViewController {
         
         // 텍스트필드 설정
         setupTextField()
+        
+        tableView.rowHeight = 120
     }
     
     func setupSegmentControl() {
