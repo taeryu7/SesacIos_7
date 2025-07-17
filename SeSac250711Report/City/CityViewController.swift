@@ -97,8 +97,8 @@ class CityViewController: UIViewController, UICollectionViewDelegate, UICollecti
     }
 }
 
-// MARK: - UICollectionViewDataSource
-extension CityViewController {  // 🔧 프로토콜 제거
+// UICollectionViewDataSource & Delegate
+extension CityViewController {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
@@ -116,16 +116,9 @@ extension CityViewController {  // 🔧 프로토콜 제거
         
         return cell
     }
-}
-
-// MARK: - UICollectionViewDelegate
-extension CityViewController {  // 🔧 프로토콜 제거
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedCity = currentCities[indexPath.item]
         print("선택된 도시: \(selectedCity.city_name)")
-        
-        // 필요하다면 상세 화면으로 이동하는 코드 추가
-        /// to-do 일지도?
     }
 }
