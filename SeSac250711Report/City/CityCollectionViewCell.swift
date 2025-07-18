@@ -39,7 +39,7 @@ class CityCollectionViewCell: UICollectionViewCell {
         // 이미지뷰 설정
         cityImageView.contentMode = .scaleAspectFill
         cityImageView.clipsToBounds = true
-        cityImageView.layer.cornerRadius = 8
+        cityImageView.layer.cornerRadius = 85
         cityImageView.backgroundColor = UIColor.lightGray
         
         // 한글 도시명 라벨 설정
