@@ -24,6 +24,10 @@ class TravleChatViewController: UIViewController, UITableViewDataSource, UITable
         setupUI()
         setupTableView()
         setupInputView()
+        
+        // 디버깅용 초기 메시지 개수 확인
+        print("초기 채팅방 메시지 개수: \(chatRoom.chatList.count)")
+        print("채팅방 이름: \(chatRoom.chatroomName)")
     }
     
     func setupUI() {
@@ -72,10 +76,11 @@ class TravleChatViewController: UIViewController, UITableViewDataSource, UITable
     @objc func sendButtonTapped() {
         guard let messageText = messageInputTextField.text,
               !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            print("빈 메시지는 전송할 수 없습니다.")
             return
         }
         
-        // 현재 날짜 생성
+        // 현재 날짜와 시간 생성
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
         let currentDate = dateFormatter.string(from: Date())
@@ -89,16 +94,37 @@ class TravleChatViewController: UIViewController, UITableViewDataSource, UITable
         // 텍스트필드 초기화
         messageInputTextField.text = ""
         
-        // 테이블뷰 리로드 및 하단으로 스크롤
-        chatTableView.reloadData()
-        scrollToBottom(animated: true)
+        // 테이블뷰에 새로운 행 추가 (애니메이션 효과와 함께)
+        let newIndexPath = IndexPath(row: chatRoom.chatList.count - 1, section: 0)
+        
+        chatTableView.beginUpdates()
+        chatTableView.insertRows(at: [newIndexPath], with: .bottom)
+        chatTableView.endUpdates()
+        
+        // 새로 추가된 메시지로 스크롤
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.scrollToBottom(animated: true)
+        }
+        
+        print("메시지 전송 완료: \(messageText)")
+        print("현재 채팅방 메시지 개수: \(chatRoom.chatList.count)")
     }
     
     func scrollToBottom(animated: Bool) {
+        guard !chatRoom.chatList.isEmpty else {
+            print("채팅 리스트가 비어있어서 스크롤할 수 없습니다.")
+            return
+        }
+        
         DispatchQueue.main.async {
-            if !self.chatRoom.chatList.isEmpty {
-                let indexPath = IndexPath(row: self.chatRoom.chatList.count - 1, section: 0)
-                self.chatTableView.scrollToRow(at: indexPath, at: .bottom, animated: animated)
+            let lastIndexPath = IndexPath(row: self.chatRoom.chatList.count - 1, section: 0)
+            
+            // 해당 인덱스가 유효한지 확인
+            if lastIndexPath.row < self.chatTableView.numberOfRows(inSection: 0) {
+                self.chatTableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: animated)
+                print("하단으로 스크롤 완료")
+            } else {
+                print("스크롤할 인덱스가 유효하지 않습니다.")
             }
         }
     }
@@ -132,6 +158,7 @@ class TravleChatViewController: UIViewController, UITableViewDataSource, UITable
     /// 옵션의 데이터 추가를 위해서 넣어놓음
     /// 돌아가는지는 모름, 확인필요
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        print("엔터키로 메시지 전송")
         sendButtonTapped()
         return true
     }
