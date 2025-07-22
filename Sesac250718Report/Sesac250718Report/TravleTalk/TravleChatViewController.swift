@@ -18,6 +18,7 @@ class TravleChatViewController: UIViewController, UITableViewDataSource, UITable
     
     // 전달받을 데이터
     var chatRoom: ChatRoom!
+    // ? !
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -154,9 +155,7 @@ class TravleChatViewController: UIViewController, UITableViewDataSource, UITable
         }
     }
     
-    /// 엔터키 누르면 메시지 전송하는 이벤트
-    /// 옵션의 데이터 추가를 위해서 넣어놓음
-    /// 돌아가는지는 모름, 확인필요
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         print("엔터키로 메시지 전송")
         sendButtonTapped()

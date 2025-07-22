@@ -46,6 +46,8 @@ class OtherMessageTableViewCell: UITableViewCell {
         otherChatTextLabel.numberOfLines = 0
         otherChatTextLabel.textAlignment = .left
         
+        otherChatTextLabel.lineBreakMode = .byWordWrapping
+        
         // 시간 라벨 설정
         otherChatTimeLabel.font = UIFont.systemFont(ofSize: 12)
         otherChatTimeLabel.textColor = .tertiaryLabel
@@ -68,6 +70,7 @@ class OtherMessageTableViewCell: UITableViewCell {
     }
     
     // 시간 포맷팅 함수
+    //
     private func formatTime(_ dateString: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm"

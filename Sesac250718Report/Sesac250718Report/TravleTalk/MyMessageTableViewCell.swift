@@ -31,6 +31,9 @@ class MyMessageTableViewCell: UITableViewCell {
         myMessageTextLabel.numberOfLines = 0
         myMessageTextLabel.textAlignment = .left
         
+        // Dynamic Height적용코드? 되는거여 안되는거여
+        myMessageTextLabel.lineBreakMode = .byWordWrapping
+        
         // 패딩을 위한 inset 설정 (텍스트가 모서리에 닿지 않도록)
         myMessageTextLabel.layer.sublayerTransform = CATransform3DMakeTranslation(8, 4, 0)
         
@@ -59,7 +62,8 @@ class MyMessageTableViewCell: UITableViewCell {
         }
         
         let outputFormatter = DateFormatter()
-        outputFormatter.dateFormat = "HH:mm"
+        outputFormatter.locale = Locale(identifier: "ko_KR")
+        outputFormatter.dateFormat = "HH:mm a"
         
         return outputFormatter.string(from: date)
     }

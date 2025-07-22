@@ -18,14 +18,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="bsd-Kb-rrZ">
-                                <rect key="frame" x="0.0" y="80" width="393" height="56"/>
+                                <rect key="frame" x="0.0" y="70" width="393" height="56"/>
                                 <textInputTraits key="textInputTraits"/>
                                 <connections>
                                     <outlet property="delegate" destination="Y6W-OH-hqX" id="2d4-2I-Le9"/>
                                 </connections>
                             </searchBar>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="OJ6-mo-do6">
-                                <rect key="frame" x="10" y="156" width="373" height="577"/>
+                                <rect key="frame" x="10" y="126" width="373" height="607"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="jLY-Vy-KIz">
                                     <size key="itemSize" width="128" height="128"/>
@@ -49,12 +49,12 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="OJ6-mo-do6" secondAttribute="bottom" constant="51" id="47u-Fc-9tL"/>
-                            <constraint firstItem="bsd-Kb-rrZ" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" constant="80" id="6DR-Xa-1Ya"/>
+                            <constraint firstItem="bsd-Kb-rrZ" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" constant="70" id="6DR-Xa-1Ya"/>
                             <constraint firstItem="OJ6-mo-do6" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="10" id="NLf-iv-2T2"/>
                             <constraint firstItem="bsd-Kb-rrZ" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="f9G-oP-RJw"/>
                             <constraint firstItem="bsd-Kb-rrZ" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="hm4-EK-lDt"/>
                             <constraint firstItem="OJ6-mo-do6" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="kUO-aj-Tea"/>
-                            <constraint firstItem="OJ6-mo-do6" firstAttribute="top" secondItem="bsd-Kb-rrZ" secondAttribute="bottom" constant="20" id="vXV-Fm-EfJ"/>
+                            <constraint firstItem="OJ6-mo-do6" firstAttribute="top" secondItem="bsd-Kb-rrZ" secondAttribute="bottom" id="vXV-Fm-EfJ"/>
                         </constraints>
                     </view>
                     <connections>
