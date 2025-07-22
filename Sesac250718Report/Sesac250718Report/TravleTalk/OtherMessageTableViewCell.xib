@@ -55,11 +55,11 @@
                     <constraint firstItem="SZd-Pl-35P" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="0a9-87-qQZ"/>
                     <constraint firstItem="GNX-XL-xf9" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="1GY-CK-z3p"/>
                     <constraint firstItem="SZd-Pl-35P" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="5gU-IU-8dF"/>
-                    <constraint firstItem="pFJ-iH-jTH" firstAttribute="leading" secondItem="GNX-XL-xf9" secondAttribute="trailing" constant="10" id="CCQ-NY-LAS"/>
                     <constraint firstAttribute="bottom" secondItem="GNX-XL-xf9" secondAttribute="bottom" constant="10" id="aoH-kt-lwq"/>
+                    <constraint firstItem="pFJ-iH-jTH" firstAttribute="leading" secondItem="GNX-XL-xf9" secondAttribute="trailing" constant="10" id="faw-FW-suM"/>
                     <constraint firstAttribute="bottom" secondItem="pFJ-iH-jTH" secondAttribute="bottom" constant="10" id="pPL-RY-PDo"/>
                     <constraint firstItem="GNX-XL-xf9" firstAttribute="leading" secondItem="SZd-Pl-35P" secondAttribute="trailing" constant="10" id="qeA-xo-IvE"/>
-                    <constraint firstAttribute="trailing" secondItem="pFJ-iH-jTH" secondAttribute="trailing" constant="10" id="vlx-ji-uGf"/>
+                    <constraint firstAttribute="trailing" secondItem="pFJ-iH-jTH" secondAttribute="trailing" constant="10" id="t2u-re-GOX"/>
                     <constraint firstAttribute="bottom" secondItem="SZd-Pl-35P" secondAttribute="bottom" id="ysg-ur-4as"/>
                 </constraints>
             </tableViewCellContentView>

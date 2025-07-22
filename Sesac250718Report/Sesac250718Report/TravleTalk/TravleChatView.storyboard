@@ -17,11 +17,8 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="pc7-VS-SbN">
-                                <rect key="frame" x="0.0" y="118" width="393" height="538"/>
+                                <rect key="frame" x="0.0" y="118" width="393" height="614"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="538" id="OcA-tg-EKA"/>
-                                </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="hZq-w6-U5t">
                                         <rect key="frame" x="0.0" y="50" width="393" height="44.666667938232422"/>
@@ -42,12 +39,12 @@
                                 </prototypes>
                             </tableView>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Fn5-pb-daJ">
-                                <rect key="frame" x="10" y="666" width="288" height="34"/>
+                                <rect key="frame" x="10" y="740" width="288" height="34"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Smr-9l-sy5">
-                                <rect key="frame" x="308" y="666" width="75" height="34.333333333333371"/>
+                                <rect key="frame" x="308" y="739.66666666666663" width="75" height="34.333333333333371"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Button"/>
                             </button>
@@ -56,18 +53,19 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="pc7-VS-SbN" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="7Y7-7Y-fyU"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Smr-9l-sy5" secondAttribute="trailing" constant="10" id="DTo-Kr-1Mg"/>
-                            <constraint firstItem="Fn5-pb-daJ" firstAttribute="top" secondItem="pc7-VS-SbN" secondAttribute="bottom" constant="10" id="FqU-Ft-bag"/>
-                            <constraint firstItem="Fn5-pb-daJ" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="10" id="Iq1-mX-HyQ"/>
-                            <constraint firstItem="Smr-9l-sy5" firstAttribute="top" secondItem="pc7-VS-SbN" secondAttribute="bottom" constant="10" id="Jx9-fc-XO9"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Fn5-pb-daJ" secondAttribute="bottom" constant="10" id="D1B-fV-d8R"/>
                             <constraint firstItem="pc7-VS-SbN" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="M8o-aI-mii"/>
                             <constraint firstAttribute="trailing" secondItem="pc7-VS-SbN" secondAttribute="trailing" id="Qfu-h0-Qoj"/>
-                            <constraint firstItem="Smr-9l-sy5" firstAttribute="leading" secondItem="Fn5-pb-daJ" secondAttribute="trailing" constant="10" id="v4y-6k-eOO"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Smr-9l-sy5" secondAttribute="trailing" constant="10" id="WVb-56-LZP"/>
+                            <constraint firstItem="Smr-9l-sy5" firstAttribute="leading" secondItem="Fn5-pb-daJ" secondAttribute="trailing" constant="10" id="aH3-UH-O0P"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Smr-9l-sy5" secondAttribute="bottom" constant="10" id="dmf-E3-0DB"/>
+                            <constraint firstItem="Fn5-pb-daJ" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="10" id="ptd-lB-8VT"/>
+                            <constraint firstItem="Smr-9l-sy5" firstAttribute="top" secondItem="pc7-VS-SbN" secondAttribute="bottom" constant="7.6666666666665151" id="vLN-x5-ZjZ"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="chatTableView" destination="pc7-VS-SbN" id="yI3-dq-94a"/>
-                        <outlet property="messageInputTextField" destination="Fn5-pb-daJ" id="avd-Nm-JPL"/>
+                        <outlet property="messageInputTextField" destination="Fn5-pb-daJ" id="0vp-KZ-0yw"/>
                         <outlet property="sendButton" destination="Smr-9l-sy5" id="zOu-wE-XN6"/>
                     </connections>
                 </viewController>
