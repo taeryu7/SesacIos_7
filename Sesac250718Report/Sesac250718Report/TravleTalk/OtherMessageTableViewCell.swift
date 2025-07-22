@@ -43,6 +43,9 @@ class OtherMessageTableViewCell: UITableViewCell {
         otherChatTextLabel.layer.borderColor = UIColor.systemGray4.cgColor
         otherChatTextLabel.layer.cornerRadius = 6
         otherChatTextLabel.layer.masksToBounds = true
+        
+        
+        /// 해당부분 미적용됨, 확인필요
         otherChatTextLabel.numberOfLines = 0
         otherChatTextLabel.textAlignment = .left
         
