@@ -42,6 +42,18 @@ class LottoVC: UIViewController {
         return lottoNumberMainLabel
     }()
     
+    let horizontalStackView: UIStackView = {
+        let horizontalStackView = UIStackView()
+        horizontalStackView.axis = .horizontal
+        horizontalStackView.distribution = .equalSpacing
+        horizontalStackView.spacing = 5
+        
+        return horizontalStackView
+    }()
+    
+    let bonusTextLabel = LottoBonusLabel()
+    var bonusNumberLabel: LottoNumberLabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -54,10 +66,35 @@ class LottoVC: UIViewController {
 extension LottoVC {
     
     func configureHierarchy() {
+        // 라벨 생성해서 스택뷰에 추가
+        for i in 1...6 {
+            let numberLabel = LottoNumberLabel()
+            numberLabel.text = "\(i)번"
+            // 정사각형 크기 제약
+            numberLabel.snp.makeConstraints { make in
+                make.width.height.equalTo(40)
+            }
+            horizontalStackView.addArrangedSubview(numberLabel)
+        }
+        
+        // + 라벨
+        let plusLabel = LottoPlusLabel()
+        horizontalStackView.addArrangedSubview(plusLabel)
+        
+        // 7번 라벨 스택뷰에 추가
+        bonusNumberLabel = LottoNumberLabel()
+        bonusNumberLabel.text = "7번"
+        bonusNumberLabel.snp.makeConstraints { make in
+            make.width.height.equalTo(40)
+        }
+        horizontalStackView.addArrangedSubview(bonusNumberLabel)
+        
         view.addSubview(lottoNumberTextField)
         view.addSubview(lottoExplanationLabel)
         view.addSubview(lottoDateLabel)
         view.addSubview(lottoNumberMainLabel)
+        view.addSubview(horizontalStackView)
+        view.addSubview(bonusTextLabel)
     }
     
     func configureView() {
@@ -80,6 +117,16 @@ extension LottoVC {
         lottoNumberMainLabel.snp.makeConstraints { make in
             make.top.equalTo(lottoDateLabel.snp.bottom).offset(30)
             make.centerX.equalTo(view)
+        }
+        
+        horizontalStackView.snp.makeConstraints { make in
+            make.top.equalTo(lottoNumberMainLabel.snp.bottom).offset(20)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
+        }
+        
+        bonusTextLabel.snp.makeConstraints { make in
+            make.top.equalTo(horizontalStackView.snp.bottom).offset(5)
+            make.centerX.equalTo(bonusNumberLabel)  // 7번 라벨 중앙에 정렬
         }
     }
     
