@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Alamofire
 
 class LottoVC: UIViewController {
     
@@ -54,12 +55,133 @@ class LottoVC: UIViewController {
     let bonusTextLabel = LottoBonusLabel()
     var bonusNumberLabel: LottoNumberLabel!
     
+    // 피커뷰 관련 프로퍼티
+    let pickerView = UIPickerView()
+    let toolbar = UIToolbar()
+    var lottoNumbers: [Int] = Array(1...1000) // 1부터 1000까지의 회차 번호
+    
     override func viewDidLoad() {
-        super.viewDidLoad()
+        super.view.backgroundColor = .white
         
         configureHierarchy()
         configureView()
         configureLayout()
+        setupPickerView()
+    }
+    
+    func setupPickerView() {
+        // 피커뷰 설정
+        pickerView.delegate = self
+        pickerView.dataSource = self
+        
+        // 툴바 설정
+        toolbar.sizeToFit()
+        
+        let doneButton = UIBarButtonItem(
+            title: "완료",
+            style: .done,
+            target: self,
+            action: #selector(doneButtonTapped)
+        )
+        
+        let cancelButton = UIBarButtonItem(
+            title: "취소",
+            style: .plain,
+            target: self,
+            action: #selector(cancelButtonTapped)
+        )
+        
+        let flexSpace = UIBarButtonItem(
+            barButtonSystemItem: .flexibleSpace,
+            target: nil,
+            action: nil
+        )
+        
+        toolbar.items = [cancelButton, flexSpace, doneButton]
+        
+        // 텍스트필드에 피커뷰와 툴바 설정
+        lottoNumberTextField.inputView = pickerView
+        lottoNumberTextField.inputAccessoryView = toolbar
+    }
+    
+    @objc func doneButtonTapped() {
+        let selectedRow = pickerView.selectedRow(inComponent: 0)
+        let selectedNumber = lottoNumbers[selectedRow]
+        lottoNumberTextField.text = "\(selectedNumber)"
+        
+        // 선택된 번호로 로또 정보 요청
+        lottoRequest(drwNo: selectedNumber)
+        
+        lottoNumberTextField.resignFirstResponder()
+    }
+    
+    @objc func cancelButtonTapped() {
+        lottoNumberTextField.resignFirstResponder()
+    }
+    
+    func lottoRequest(drwNo: Int = 1000) {
+        let url = "https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=\(drwNo)"
+        AF.request(url, method: .get)
+            .validate(statusCode: 200..<300)
+            .responseDecodable(of: LottoNumber.self) { response in
+            
+            switch response.result {
+                case .success(let lottoNumber):
+                    print(lottoNumber)
+                    
+                    // UI 업데이트는 메인 스레드에서 실행
+                    DispatchQueue.main.async {
+                        self.updateLottoNumbers(with: lottoNumber)
+                    }
+                
+                case .failure(let error):
+                    print(error)
+                }
+        }
+    }
+    
+    func updateLottoNumbers(with lottoNumber: LottoNumber) {
+        // 스택뷰의 기존 번호 라벨들 업데이트
+        let numbers = [
+            lottoNumber.drwtNo1,
+            lottoNumber.drwtNo2,
+            lottoNumber.drwtNo3,
+            lottoNumber.drwtNo4,
+            lottoNumber.drwtNo5,
+            lottoNumber.drwtNo6
+        ]
+        
+        var labelIndex = 0
+        for arrangedSubview in horizontalStackView.arrangedSubviews {
+            if let numberLabel = arrangedSubview as? LottoNumberLabel, labelIndex < numbers.count {
+                numberLabel.text = "\(numbers[labelIndex])"
+                labelIndex += 1
+            }
+        }
+        
+        // 보너스 번호 업데이트
+        bonusNumberLabel.text = "\(lottoNumber.bnusNo)"
+        
+        // 회차 정보 업데이트
+        lottoNumberMainLabel.text = "\(lottoNumber.drwNo)회차 당첨번호"
+        
+        // 추첨일 업데이트
+        lottoDateLabel.text = "\(lottoNumber.drwNoDate) 추첨"
+    }
+}
+
+// MARK: - UIPickerViewDataSource, UIPickerViewDelegate
+extension LottoVC: UIPickerViewDataSource, UIPickerViewDelegate {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return lottoNumbers.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return "\(lottoNumbers[row])회차"
     }
 }
 

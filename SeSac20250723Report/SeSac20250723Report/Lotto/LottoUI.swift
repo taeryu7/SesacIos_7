@@ -13,9 +13,7 @@ class LottoTextField: UITextField {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        
         print("회차번호를 선택하세요")
-        self.isSecureTextEntry = true
         self.borderStyle = .none
         self.font = .systemFont(ofSize: 15)
         self.layer.borderWidth = 1
@@ -25,8 +23,9 @@ class LottoTextField: UITextField {
         self.tintColor = .systemTeal
         self.textAlignment = .center
         
+        // 키보드 입력 방지 (피커뷰만 사용)
+        self.isUserInteractionEnabled = true
     }
-    
     
     /// 스토리보드로 뷰를 구성했을때 실행되는 초기화 구분
     /// 코드로 만들더라도 스토리보드 초기화 구문을 꼭 쓰게 만듬;
