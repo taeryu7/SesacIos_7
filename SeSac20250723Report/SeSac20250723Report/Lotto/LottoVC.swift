@@ -170,7 +170,7 @@ class LottoVC: UIViewController {
     }
 }
 
-// MARK: - UIPickerViewDataSource, UIPickerViewDelegate
+// MARK: UIPickerViewDelegate
 extension LottoVC: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1

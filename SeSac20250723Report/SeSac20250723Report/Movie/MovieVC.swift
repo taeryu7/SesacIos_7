@@ -11,7 +11,7 @@ import SnapKit
 class MovieVC: UIViewController {
     
     let tableView = UITableView()
-    let moviesearchBar = UISearchBar()  // 이제 날짜 입력용으로 사용
+    let moviesearchBar = UISearchBar()
     let searchButton = UIButton()
     
     var boxOfficeMovies: [DailyBoxOffice] = []
@@ -22,7 +22,15 @@ class MovieVC: UIViewController {
         configureHierarchy()
         configureUView()
         configureLayout()
-        loadBoxOfficeData(for: "20250723") // 초기 데이터 로드
+        loadBoxOfficeData(for: getYesterdayDate()) // 어제 날짜로 초기 데이터 로드
+    }
+    
+    // 어제 날짜 구하기 (YYYYMMDD 형식)
+    private func getYesterdayDate() -> String {
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        return formatter.string(from: yesterday)
     }
     
     // API 호출해서 박스오피스 데이터 가져오기
@@ -122,7 +130,7 @@ extension MovieVC: UITableViewDelegate, UITableViewDataSource, UISearchBarDelega
         view.backgroundColor = .white
         
         // 서치바 설정
-        moviesearchBar.placeholder = "날짜를 입력하세요"
+        moviesearchBar.placeholder = "날짜를 입력하세요 (예: 20221120)"
         moviesearchBar.searchBarStyle = .minimal
         moviesearchBar.delegate = self
         moviesearchBar.keyboardType = .numberPad
