@@ -58,21 +58,61 @@ class LottoVC: UIViewController {
     // 피커뷰 관련 프로퍼티
     let pickerView = UIPickerView()
     let toolbar = UIToolbar()
-    var lottoNumbers: [Int] = Array(1...1000) // 1부터 1000까지의 회차 번호
+    var lottoNumbers: [Int] = []
     
     override func viewDidLoad() {
         super.view.backgroundColor = .white
         
+        setupLottoNumbers()
         configureHierarchy()
         configureView()
         configureLayout()
         setupPickerView()
+        loadLatestLottoData()
+    }
+    
+    // 현재 회차 계산 함수
+    func getCurrentDrawNumber() -> Int {
+        // 기준점: 1182회차 = 2025년 7월 26일 토요일
+        let baseDate = Calendar.current.date(from: DateComponents(year: 2025, month: 7, day: 26))!
+        let baseDraw = 1182
+        
+        let today = Date()
+        let weeksBetween = Calendar.current.dateComponents([.weekOfYear], from: baseDate, to: today).weekOfYear ?? 0
+        
+        return baseDraw + weeksBetween
+    }
+    
+    // 로또 번호 배열 설정
+    func setupLottoNumbers() {
+        let currentDraw = getCurrentDrawNumber()
+        lottoNumbers = Array(1...currentDraw)
+        print("피커뷰 데이터 설정: 1부터 \(currentDraw)까지")
+    }
+    
+    // 최신 회차 데이터 자동 로드
+    func loadLatestLottoData() {
+        let currentDraw = getCurrentDrawNumber()
+        
+        // 텍스트필드에 최신 회차 설정
+        lottoNumberTextField.text = "\(currentDraw)"
+        
+        // 피커뷰를 최신 회차로 이동
+        if let index = lottoNumbers.firstIndex(of: currentDraw) {
+            pickerView.selectRow(index, inComponent: 0, animated: false)
+        }
+        
+        // 최신 회차 데이터 요청
+        lottoRequest(drwNo: currentDraw)
     }
     
     func setupPickerView() {
         // 피커뷰 설정
         pickerView.delegate = self
         pickerView.dataSource = self
+        
+        // 데이터 리로드 (중요!)
+        pickerView.reloadAllComponents()
         
         // 툴바 설정
         toolbar.sizeToFit()
@@ -119,7 +159,7 @@ class LottoVC: UIViewController {
         lottoNumberTextField.resignFirstResponder()
     }
     
-    func lottoRequest(drwNo: Int = 1000) {
+    func lottoRequest(drwNo: Int) {
         let url = "https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=\(drwNo)"
         AF.request(url, method: .get)
             .validate(statusCode: 200..<300)
@@ -170,7 +210,6 @@ class LottoVC: UIViewController {
     }
 }
 
-// MARK: UIPickerViewDelegate
 extension LottoVC: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -181,6 +220,7 @@ extension LottoVC: UIPickerViewDataSource, UIPickerViewDelegate {
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        guard row < lottoNumbers.count else { return nil }
         return "\(lottoNumbers[row])회차"
     }
 }
