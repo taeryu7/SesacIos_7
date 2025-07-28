@@ -11,16 +11,16 @@ import Alamofire
 
 // 정렬 타입 열거형
 enum SortType: String, CaseIterable {
-    case accuracy = "sim"      // 정확도
-    case brand = "brand"       // 브랜드
-    case priceDesc = "price"   // 가격대순위 (높은순)
+    case accuracy = "sim"      // 정확도 (유사도순)
+    case date = "date"         // 날짜순
+    case priceDesc = "dsc"     // 가격높은순
     case priceAsc = "asc"      // 가격낮은순
     
     var displayName: String {
         switch self {
         case .accuracy: return "정확도"
-        case .brand: return "브랜드"
-        case .priceDesc: return "가격대순위"
+        case .date: return "날짜순"
+        case .priceDesc: return "가격높은순"
         case .priceAsc: return "가격낮은순"
         }
     }
@@ -32,8 +32,8 @@ class ShopingSearchVC: UIViewController {
     var searchKeyword: String = ""
     
     // API 키 정보
-    private let clientID = ""
-    private let clientSecret = ""
+    private let clientID = "4jO2oSJYKrtpl3aIHrkE"
+    private let clientSecret = "K0xaeHhn8u"
     
     // 페이지네이션 관련 프로퍼티
     private let itemsPerPage = 30
@@ -58,12 +58,27 @@ class ShopingSearchVC: UIViewController {
     
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
-    // 로딩 인디케이터
-    let loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
+    // 로딩 인디케이터들
+    let mainLoadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
         indicator.color = .white
         indicator.hidesWhenStopped = true
         return indicator
+    }()
+    
+    let paginationLoadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.color = .systemTeal
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+    
+    // 로딩 배경뷰
+    let loadingBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        view.isHidden = true
+        return view
     }()
     
     // 데이터
@@ -158,7 +173,9 @@ class ShopingSearchVC: UIViewController {
         
         // 로딩 인디케이터 표시
         if currentPage == 1 {
-            loadingIndicator.startAnimating()
+            showMainLoading()
+        } else {
+            showPaginationLoading()
         }
         
         let url = "https://openapi.naver.com/v1/search/shop.json"
@@ -177,44 +194,113 @@ class ShopingSearchVC: UIViewController {
         ]
         
         AF.request(url, method: .get, parameters: parameters, headers: headers)
-            .validate(statusCode: 200..<300)
-            .responseDecodable(of: NaverShoppingResponse.self) { response in
-                
+            .validate()
+            .response { response in
                 DispatchQueue.main.async {
                     self.isLoading = false
-                    self.loadingIndicator.stopAnimating()
+                    self.hideAllLoading()
                 }
                 
-                switch response.result {
-                case .success(let shoppingResponse):
-                    print("API 성공: 페이지 \(self.currentPage), 아이템 수: \(shoppingResponse.items.count)")
-                    
-                    DispatchQueue.main.async {
-                        if self.currentPage == 1 {
-                            // 첫 페이지면 기존 데이터 교체
-                            self.shoppingItems = shoppingResponse.items
-                            self.totalCount = shoppingResponse.total
-                        } else {
-                            // 추가 페이지면 기존 데이터에 추가
-                            self.shoppingItems.append(contentsOf: shoppingResponse.items)
+                // HTTP 상태 코드별 처리
+                if let httpResponse = response.response {
+                    switch httpResponse.statusCode {
+                    case 200:
+                        // 성공 - 데이터 파싱 시도
+                        self.handleSuccessResponse(response.data)
+                        
+                    case 400:
+                        DispatchQueue.main.async {
+                            self.showErrorAlert(title: "검색 오류", message: "검색어를 확인해주세요.")
                         }
                         
-                        // 더 이상 데이터가 없는지 확인
-                        self.hasMoreData = shoppingResponse.items.count == self.itemsPerPage
+                    case 401:
+                        DispatchQueue.main.async {
+                            self.showErrorAlert(title: "인증 오류", message: "API 키 인증에 실패했습니다.")
+                        }
                         
-                        self.updateUI()
-                        self.collectionView.reloadData()
-                        self.currentPage += 1
+                    case 403:
+                        DispatchQueue.main.async {
+                            self.showErrorAlert(title: "접근 거부", message: "API 사용 권한이 없습니다.")
+                        }
+                        
+                    case 429:
+                        DispatchQueue.main.async {
+                            self.showErrorAlert(title: "요청 한도 초과", message: "잠시 후 다시 시도해주세요.")
+                        }
+                        
+                    case 500...599:
+                        DispatchQueue.main.async {
+                            self.showErrorAlert(title: "서버 오류", message: "서버에 일시적인 문제가 발생했습니다.")
+                        }
+                        
+                    default:
+                        DispatchQueue.main.async {
+                            self.showErrorAlert(title: "네트워크 오류", message: "네트워크 연결을 확인해주세요.")
+                        }
                     }
-                    
-                case .failure(let error):
-                    print("API 실패: \(error)")
-                    
+                } else {
+                    // 네트워크 연결 실패
                     DispatchQueue.main.async {
-                        self.showErrorAlert()
+                        self.showErrorAlert(title: "연결 실패", message: "인터넷 연결을 확인해주세요.")
                     }
                 }
             }
+    }
+    
+    func handleSuccessResponse(_ data: Data?) {
+        guard let data = data else {
+            DispatchQueue.main.async {
+                self.showErrorAlert(title: "데이터 오류", message: "응답 데이터가 없습니다.")
+            }
+            return
+        }
+        
+        do {
+            let shoppingResponse = try JSONDecoder().decode(NaverShoppingResponse.self, from: data)
+            print("API 성공: 페이지 \(self.currentPage), 아이템 수: \(shoppingResponse.items.count)")
+            
+            DispatchQueue.main.async {
+                if self.currentPage == 1 {
+                    // 첫 페이지면 기존 데이터 교체
+                    self.shoppingItems = shoppingResponse.items
+                    self.totalCount = shoppingResponse.total
+                } else {
+                    // 추가 페이지면 기존 데이터에 추가
+                    self.shoppingItems.append(contentsOf: shoppingResponse.items)
+                }
+                
+                // 더 이상 데이터가 없는지 확인 (두 가지 조건으로 체크)
+                let loadedCount = (self.currentPage - 1) * self.itemsPerPage + shoppingResponse.items.count
+                self.hasMoreData = shoppingResponse.items.count == self.itemsPerPage && loadedCount < shoppingResponse.total
+                
+                self.updateUI()
+                self.collectionView.reloadData()
+                self.currentPage += 1
+            }
+            
+        } catch {
+            DispatchQueue.main.async {
+                self.showErrorAlert(title: "데이터 파싱 오류", message: "응답 데이터를 처리할 수 없습니다.")
+            }
+        }
+    }
+    
+    // MARK: - Loading Methods
+    func showMainLoading() {
+        loadingBackgroundView.isHidden = false
+        mainLoadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+    }
+    
+    func showPaginationLoading() {
+        paginationLoadingIndicator.startAnimating()
+    }
+    
+    func hideAllLoading() {
+        loadingBackgroundView.isHidden = true
+        mainLoadingIndicator.stopAnimating()
+        paginationLoadingIndicator.stopAnimating()
+        view.isUserInteractionEnabled = true
     }
     
     func loadNextPageIfNeeded() {
@@ -234,8 +320,8 @@ class ShopingSearchVC: UIViewController {
         navigationItem.title = searchKeyword
     }
     
-    func showErrorAlert() {
-        let alert = UIAlertController(title: "오류", message: "검색 결과를 불러오는데 실패했습니다.", preferredStyle: .alert)
+    func showErrorAlert(title: String = "오류", message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
     }
@@ -271,7 +357,11 @@ extension ShopingSearchVC {
         view.addSubview(resultCountLabel)
         view.addSubview(sortStackView)
         view.addSubview(collectionView)
-        view.addSubview(loadingIndicator)
+        
+        // 로딩 관련 뷰들 추가
+        view.addSubview(loadingBackgroundView)
+        loadingBackgroundView.addSubview(mainLoadingIndicator)
+        view.addSubview(paginationLoadingIndicator)
     }
     
     func configureUView() {
@@ -294,8 +384,18 @@ extension ShopingSearchVC {
             make.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
         }
         
-        loadingIndicator.snp.makeConstraints { make in
-            make.center.equalTo(view)
+        // 로딩 관련 제약조건
+        loadingBackgroundView.snp.makeConstraints { make in
+            make.edges.equalTo(view)
+        }
+        
+        mainLoadingIndicator.snp.makeConstraints { make in
+            make.center.equalTo(loadingBackgroundView)
+        }
+        
+        paginationLoadingIndicator.snp.makeConstraints { make in
+            make.centerX.equalTo(view)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
         }
     }
     
