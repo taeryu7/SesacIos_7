@@ -32,8 +32,8 @@ class ShopingSearchVC: UIViewController {
     var searchKeyword: String = ""
     
     // API 키 정보
-    private let clientID = "4jO2oSJYKrtpl3aIHrkE"
-    private let clientSecret = "K0xaeHhn8u"
+    private let clientID = ""
+    private let clientSecret = ""
     
     // 페이지네이션 관련 프로퍼티
     private let itemsPerPage = 30
