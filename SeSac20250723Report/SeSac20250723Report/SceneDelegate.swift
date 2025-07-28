@@ -18,7 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         
         // window 에게 루트 뷰 지정.
-        let navigationController = UINavigationController(rootViewController: LottoVC()) // 네비게이션컨트롤러 사용시 루트뷰 지정하는 코드
+        let navigationController = UINavigationController(rootViewController: ShopingVC()) // 네비게이션컨트롤러 사용시 루트뷰 지정하는 코드
         window.rootViewController = navigationController
         
          // 이 메서드를 반드시 작성해줘야 윈도우가 활성화 됨.
