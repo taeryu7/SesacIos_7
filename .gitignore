@@ -164,6 +164,7 @@ GoogleService-Info.plist
 google-services.json
 
 # API Keys (if you have any config files with keys)
+APIKey.swift
 APIKeys.plist
 Config.plist
 
