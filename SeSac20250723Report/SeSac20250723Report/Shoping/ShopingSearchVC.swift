@@ -31,9 +31,9 @@ class ShopingSearchVC: UIViewController {
     // 검색어 전달받을 프로퍼티
     var searchKeyword: String = ""
     
-    // API 키 정보
-    private let clientID = ""
-    private let clientSecret = ""
+    // API 키 정보 - APIKey 구조체에서 가져오기
+    private let clientID = APIKey.naverID
+    private let clientSecret = APIKey.naverSecret
     
     // 페이지네이션 관련 프로퍼티
     private let itemsPerPage = 30
@@ -96,7 +96,18 @@ class ShopingSearchVC: UIViewController {
         configureLayout()
         setupSortButtons()
         setupCollectionView()
+        
+        // API 키 검증 후 API 호출
+        validateAPIKeys()
         requestShoppingAPI()
+    }
+    
+    // API 키 유효성 검증
+    private func validateAPIKeys() {
+        guard !clientID.isEmpty && !clientSecret.isEmpty else {
+            showErrorAlert(title: "설정 오류", message: "API 키가 설정되지 않았습니다.")
+            return
+        }
     }
     
     func setupSortButtons() {
@@ -166,6 +177,12 @@ class ShopingSearchVC: UIViewController {
     }
     
     func requestShoppingAPI() {
+        // API 키 검증
+        guard !clientID.isEmpty && !clientSecret.isEmpty else {
+            showErrorAlert(title: "설정 오류", message: "API 키가 올바르게 설정되지 않았습니다.")
+            return
+        }
+        
         // 이미 로딩 중이거나 더 이상 데이터가 없으면 중단
         guard !isLoading && hasMoreData else { return }
         
@@ -258,6 +275,7 @@ class ShopingSearchVC: UIViewController {
         do {
             let shoppingResponse = try JSONDecoder().decode(NaverShoppingResponse.self, from: data)
             print("API 성공: 페이지 \(self.currentPage), 아이템 수: \(shoppingResponse.items.count)")
+            
             
             DispatchQueue.main.async {
                 if self.currentPage == 1 {
