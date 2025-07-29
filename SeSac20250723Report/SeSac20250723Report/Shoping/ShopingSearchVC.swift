@@ -58,6 +58,29 @@ class ShopingSearchVC: UIViewController {
     
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
+    // 하단 추천 상품 관련 UI
+    let recommendationTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "추천상품"
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.textColor = .white
+        return label
+    }()
+    
+    let bottomCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumInteritemSpacing = 10
+        layout.minimumLineSpacing = 10
+        layout.itemSize = CGSize(width: 100, height: 100)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.showsHorizontalScrollIndicator = false
+        return collectionView
+    }()
+    
     // 로딩 인디케이터들
     let mainLoadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
@@ -83,6 +106,7 @@ class ShopingSearchVC: UIViewController {
     
     // 데이터
     var shoppingItems: [ShoppingItem] = []
+    var randomItems: [ShoppingItem] = []  // 하단 추천상품용 랜덤 데이터
     var totalCount: Int = 0
     
     // 정렬 버튼들을 저장할 배열
@@ -96,6 +120,7 @@ class ShopingSearchVC: UIViewController {
         configureLayout()
         setupSortButtons()
         setupCollectionView()
+        setupBottomCollectionView()
         
         // API 키 검증 후 API 호출
         validateAPIKeys()
@@ -143,6 +168,25 @@ class ShopingSearchVC: UIViewController {
         collectionView.collectionViewLayout = layout
     }
     
+    func setupBottomCollectionView() {
+        bottomCollectionView.delegate = self
+        bottomCollectionView.dataSource = self
+        bottomCollectionView.register(RecommendationCollectionViewCell.self, forCellWithReuseIdentifier: RecommendationCollectionViewCell.identifier)
+    }
+    
+    // 랜덤 아이템 업데이트 (검색 시마다 호출)
+    func updateRandomItems() {
+        guard shoppingItems.count > 0 else {
+            randomItems.removeAll()
+            bottomCollectionView.reloadData()
+            return
+        }
+        
+        let shuffled = shoppingItems.shuffled()
+        randomItems = Array(shuffled.prefix(10))
+        bottomCollectionView.reloadData()
+    }
+    
     @objc func sortButtonTapped(_ sender: UIButton) {
         let selectedSortType = SortType.allCases[sender.tag]
         
@@ -172,8 +216,10 @@ class ShopingSearchVC: UIViewController {
     func resetPagination() {
         currentPage = 1
         shoppingItems.removeAll()
+        randomItems.removeAll()
         hasMoreData = true
         collectionView.reloadData()
+        bottomCollectionView.reloadData()
     }
     
     func requestShoppingAPI() {
@@ -276,12 +322,14 @@ class ShopingSearchVC: UIViewController {
             let shoppingResponse = try JSONDecoder().decode(NaverShoppingResponse.self, from: data)
             print("API 성공: 페이지 \(self.currentPage), 아이템 수: \(shoppingResponse.items.count)")
             
-            
             DispatchQueue.main.async {
                 if self.currentPage == 1 {
                     // 첫 페이지면 기존 데이터 교체
                     self.shoppingItems = shoppingResponse.items
                     self.totalCount = shoppingResponse.total
+                    
+                    // 첫 페이지에서만 랜덤 아이템 업데이트 (검색 시마다)
+                    self.updateRandomItems()
                 } else {
                     // 추가 페이지면 기존 데이터에 추가
                     self.shoppingItems.append(contentsOf: shoppingResponse.items)
@@ -345,29 +393,49 @@ class ShopingSearchVC: UIViewController {
     }
 }
 
+// 메인 컬렉션뷰
 extension ShopingSearchVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return shoppingItems.count
+        if collectionView == self.collectionView {
+            return shoppingItems.count
+        } else if collectionView == bottomCollectionView {
+            return randomItems.count
+        }
+        return 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ShopingSearchCollectionViewCell.identifier, for: indexPath) as! ShopingSearchCollectionViewCell
+        if collectionView == self.collectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ShopingSearchCollectionViewCell.identifier, for: indexPath) as! ShopingSearchCollectionViewCell
+            
+            let item = shoppingItems[indexPath.item]
+            cell.configure(with: item)
+            
+            return cell
+        } else if collectionView == bottomCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecommendationCollectionViewCell.identifier, for: indexPath) as! RecommendationCollectionViewCell
+            
+            let item = randomItems[indexPath.item]
+            cell.configure(with: item)
+            
+            return cell
+        }
         
-        let item = shoppingItems[indexPath.item]
-        cell.configure(with: item)
-        
-        return cell
+        return UICollectionViewCell()
     }
     
-    // 스크롤 감지로 페이지네이션 처리
+    // 스크롤 감지로 페이지네이션 처리 (메인 컬렉션뷰만)
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // 마지막에서 5개 전 아이템에 도달했을 때 다음 페이지 로드
-        if indexPath.item >= shoppingItems.count - 5 {
-            loadNextPageIfNeeded()
+        if collectionView == self.collectionView {
+            // 마지막에서 5개 전 아이템에 도달했을 때 다음 페이지 로드
+            if indexPath.item >= shoppingItems.count - 5 {
+                loadNextPageIfNeeded()
+            }
         }
     }
 }
+
 
 extension ShopingSearchVC {
     
@@ -375,6 +443,10 @@ extension ShopingSearchVC {
         view.addSubview(resultCountLabel)
         view.addSubview(sortStackView)
         view.addSubview(collectionView)
+        
+        // 하단 추천상품 관련 뷰 추가
+        view.addSubview(recommendationTitleLabel)
+        view.addSubview(bottomCollectionView)
         
         // 로딩 관련 뷰들 추가
         view.addSubview(loadingBackgroundView)
@@ -397,9 +469,25 @@ extension ShopingSearchVC {
             make.height.equalTo(35)
         }
         
+        // 추천상품 타이틀 라벨
+        recommendationTitleLabel.snp.makeConstraints { make in
+            make.bottom.equalTo(bottomCollectionView.snp.top).offset(-5)
+            make.leading.equalTo(view.safeAreaLayoutGuide).offset(20)
+            make.height.equalTo(20)
+        }
+        
+        // 하단 가로 컬렉션뷰
+        bottomCollectionView.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-10)
+            make.height.equalTo(110)
+        }
+        
+        // 메인 컬렉션뷰 (하단 컬렉션뷰 위까지)
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(sortStackView.snp.bottom).offset(10)
-            make.leading.trailing.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalTo(recommendationTitleLabel.snp.top).offset(-10)
         }
         
         // 로딩 관련 제약조건
@@ -413,7 +501,7 @@ extension ShopingSearchVC {
         
         paginationLoadingIndicator.snp.makeConstraints { make in
             make.centerX.equalTo(view)
-            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            make.bottom.equalTo(recommendationTitleLabel.snp.top).offset(-20)
         }
     }
     
@@ -429,6 +517,85 @@ extension ShopingSearchVC {
         // 네비게이션 설정
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+    }
+}
+
+
+class RecommendationCollectionViewCell: UICollectionViewCell {
+    
+    static let identifier = "RecommendationCollectionViewCell"
+    
+    let productImageView = UIImageView()
+    let priceLabel = UILabel()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        setupUI()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI() {
+        contentView.addSubview(productImageView)
+        contentView.addSubview(priceLabel)
+        
+        backgroundColor = .systemGray6
+        layer.cornerRadius = 8
+        clipsToBounds = true
+        
+        productImageView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalTo(contentView)
+            make.height.equalTo(70)
+        }
+        
+        priceLabel.snp.makeConstraints { make in
+            make.top.equalTo(productImageView.snp.bottom).offset(4)
+            make.leading.trailing.equalTo(contentView).inset(4)
+            make.bottom.equalTo(contentView).offset(-4)
+        }
+        
+        // 이미지뷰 설정
+        productImageView.backgroundColor = .systemGray5
+        productImageView.contentMode = .scaleAspectFill
+        productImageView.clipsToBounds = true
+        
+        // 가격 라벨 설정
+        priceLabel.font = .systemFont(ofSize: 11, weight: .medium)
+        priceLabel.textColor = .black
+        priceLabel.textAlignment = .center
+        priceLabel.numberOfLines = 1
+    }
+    
+    func configure(with item: ShoppingItem) {
+        // 가격 포맷팅
+        if let price = Int(item.lprice) {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            priceLabel.text = "\(formatter.string(from: NSNumber(value: price)) ?? "")원"
+        } else {
+            priceLabel.text = "\(item.lprice)원"
+        }
+        
+        // 이미지 로드
+        loadImage(from: item.image)
+    }
+    
+    private func loadImage(from urlString: String) {
+        productImageView.image = nil
+        
+        guard let url = URL(string: urlString) else { return }
+        
+        DispatchQueue.global().async {
+            if let data = try? Data(contentsOf: url),
+               let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self.productImageView.image = image
+                }
+            }
+        }
     }
 }
 
