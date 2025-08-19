@@ -78,10 +78,15 @@ class ViewController: UIViewController {
     }
     
     @objc private func simpleTableViewButtonTapped() {
-        print("SimpleTableView 버튼이 눌렸습니다")
+        let tableViewController = SimpleTableViewExampleViewController()
+        let navigationController = UINavigationController(rootViewController: tableViewController)
+        present(navigationController, animated: true, completion: nil)
     }
     
     @objc private func simpleValidationViewButtonTapped() {
-        print("SimpleValidationView 버튼이 눌렸습니다")
+        let simpleValidationController = SimpleValidationViewController()
+        let navigationController = UINavigationController(rootViewController: simpleValidationController)
+        present(navigationController, animated: true, completion: nil)
+        
     }
 }
