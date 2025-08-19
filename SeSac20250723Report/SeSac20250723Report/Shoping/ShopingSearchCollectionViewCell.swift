@@ -104,6 +104,7 @@ extension ShopingSearchCollectionViewCell {
     
     func configure(with item: ShoppingItem) {
         // HTML 태그 제거
+        //
         let cleanTitle = item.title.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
         titleLabel.text = cleanTitle
         mallNameLabel.text = item.mallName

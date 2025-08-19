@@ -10,6 +10,8 @@ import SnapKit
 
 class ShopingVC: UIViewController {
     
+    private let viewModel = ShoppingViewModel()
+    
     let mainTitleLabel = {
         let mainTitleLabel = ShoppingTitleLabel()
         return mainTitleLabel
@@ -36,10 +38,32 @@ class ShopingVC: UIViewController {
         configureHierarchy()
         configureUView()
         configureLayout()
+        bindData()
+    }
+    
+    private func bindData() {
+        viewModel.output.validationResult.bind {
+            let result = self.viewModel.output.validationResult.value
+            
+            switch result {
+            case .failure(let errorMessage):
+                self.showAlert(message: errorMessage)
+            case .success, .none:
+                break
+            }
+        }
+        
+        viewModel.output.navigateToSearch.bind {
+            if let searchKeyword = self.viewModel.output.navigateToSearch.value {
+                let searchResultVC = ShopingSearchVC()
+                searchResultVC.searchKeyword = searchKeyword
+                self.navigationController?.pushViewController(searchResultVC, animated: true)
+            }
+        }
     }
 }
 
-extension ShopingVC: UISearchBarDelegate {
+extension ShopingVC {
     
     func configureHierarchy() {
         view.addSubview(mainTitleLabel)
@@ -79,28 +103,23 @@ extension ShopingVC: UISearchBarDelegate {
     
     func configureLayout() {
         view.backgroundColor = .black
-        
         mainSearchBar.delegate = self
     }
+}
+
+extension ShopingVC: UISearchBarDelegate {
     
-    // 검색 버튼 클릭 시 실행
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        
-        // 2글자 이상 입력 검증
-        guard let searchText = searchBar.text, searchText.count >= 2 else {
-            let alert = UIAlertController(title: "검색어 입력", message: "2글자 이상 입력해주세요", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "확인", style: .default))
-            present(alert, animated: true)
-            return
-        }
-        
-        // 키보드 내리기
         searchBar.resignFirstResponder()
         
-        // 검색 결과 화면으로 이동 (검색어 전달)
-        let searchResultVC = ShopingSearchVC()
-        searchResultVC.searchKeyword = searchText
-        navigationController?.pushViewController(searchResultVC, animated: true)
+        viewModel.input.searchText.value = searchBar.text
+        viewModel.input.searchButtonTapped.value = ()
+    }
+    
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "검색어 입력", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }
 

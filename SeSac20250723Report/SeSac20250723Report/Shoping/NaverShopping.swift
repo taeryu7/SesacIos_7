@@ -19,4 +19,6 @@ struct ShoppingItem: Decodable {
     let image: String           // 상품 이미지 URL
     let mallName: String        // 쇼핑몰명
     let lprice: String          // 최저가 (문자열)
+    
+    
 }

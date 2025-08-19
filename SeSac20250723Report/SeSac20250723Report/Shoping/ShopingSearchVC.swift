@@ -7,7 +7,6 @@
 
 import UIKit
 import SnapKit
-import Alamofire
 
 // 정렬 타입 열거형
 enum SortType: String, CaseIterable {
@@ -28,23 +27,18 @@ enum SortType: String, CaseIterable {
 
 class ShopingSearchVC: UIViewController {
     
+    // ViewModel
+    private let viewModel = ShopingSearchViewModel()
+    
     // 검색어 전달받을 프로퍼티
     var searchKeyword: String = ""
-    
-    // API 키 정보 - APIKey 구조체에서 가져오기
-    private let clientID = APIKey.naverID
-    private let clientSecret = APIKey.naverSecret
-    
-    // 페이지네이션 관련 프로퍼티
-    private let itemsPerPage = 30
-    private var currentPage = 1
-    private var isLoading = false
-    private var hasMoreData = true
-    private var currentSortType: SortType = .accuracy
     
     // UI 컴포넌트들
     let resultCountLabel = {
         let resultCountLabel = SearchResultCountLabel()
+        
+        //SortType(rawValue: "date")
+        
         return resultCountLabel
     }()
     
@@ -104,11 +98,6 @@ class ShopingSearchVC: UIViewController {
         return view
     }()
     
-    // 데이터
-    var shoppingItems: [ShoppingItem] = []
-    var randomItems: [ShoppingItem] = []  // 하단 추천상품용 랜덤 데이터
-    var totalCount: Int = 0
-    
     // 정렬 버튼들을 저장할 배열
     var sortButtons: [SortButton] = []
     
@@ -121,17 +110,47 @@ class ShopingSearchVC: UIViewController {
         setupSortButtons()
         setupCollectionView()
         setupBottomCollectionView()
+        bindData()
         
-        // API 키 검증 후 API 호출
-        validateAPIKeys()
-        requestShoppingAPI()
+        // 검색 시작
+        viewModel.input.initialSearch.value = searchKeyword
+        navigationItem.title = searchKeyword
     }
     
-    // API 키 유효성 검증
-    private func validateAPIKeys() {
-        guard !clientID.isEmpty && !clientSecret.isEmpty else {
-            showErrorAlert(title: "설정 오류", message: "API 키가 설정되지 않았습니다.")
-            return
+    private func bindData() {
+        viewModel.output.shoppingItems.bind {
+            self.collectionView.reloadData()
+        }
+        
+        viewModel.output.randomItems.bind {
+            self.bottomCollectionView.reloadData()
+        }
+        
+        viewModel.output.isMainLoading.bind {
+            if self.viewModel.output.isMainLoading.value {
+                self.showMainLoading()
+            } else {
+                self.hideMainLoading()
+            }
+        }
+        
+        viewModel.output.isPaginationLoading.bind {
+            if self.viewModel.output.isPaginationLoading.value {
+                self.showPaginationLoading()
+            } else {
+                self.hidePaginationLoading()
+            }
+        }
+        
+        viewModel.output.error.bind {
+            if let error = self.viewModel.output.error.value {
+                let message = error.message
+                self.showErrorAlert(title: message.title, message: message.description)
+            }
+        }
+        
+        viewModel.output.totalCountText.bind {
+            self.resultCountLabel.text = self.viewModel.output.totalCountText.value
         }
     }
     
@@ -174,35 +193,18 @@ class ShopingSearchVC: UIViewController {
         bottomCollectionView.register(RecommendationCollectionViewCell.self, forCellWithReuseIdentifier: RecommendationCollectionViewCell.identifier)
     }
     
-    // 랜덤 아이템 업데이트 (검색 시마다 호출)
-    func updateRandomItems() {
-        guard shoppingItems.count > 0 else {
-            randomItems.removeAll()
-            bottomCollectionView.reloadData()
-            return
-        }
-        
-        let shuffled = shoppingItems.shuffled()
-        randomItems = Array(shuffled.prefix(10))
-        bottomCollectionView.reloadData()
-    }
-    
     @objc func sortButtonTapped(_ sender: UIButton) {
         let selectedSortType = SortType.allCases[sender.tag]
         
-        // 같은 정렬이면 무시
-        guard selectedSortType != currentSortType else { return }
-        
-        // 정렬 변경 시 첫 페이지부터 다시 조회
-        currentSortType = selectedSortType
-        resetPagination()
+        viewModel.input.sortChanged.value = selectedSortType
         updateSortButtonsUI()
-        requestShoppingAPI()
         
         print("정렬 변경: \(selectedSortType.displayName)")
     }
     
     func updateSortButtonsUI() {
+        let currentSortType = viewModel.getCurrentSortType()
+        
         for (index, button) in sortButtons.enumerated() {
             let sortType = SortType.allCases[index]
             let isSelected = sortType == currentSortType
@@ -213,177 +215,24 @@ class ShopingSearchVC: UIViewController {
         }
     }
     
-    func resetPagination() {
-        currentPage = 1
-        shoppingItems.removeAll()
-        randomItems.removeAll()
-        hasMoreData = true
-        collectionView.reloadData()
-        bottomCollectionView.reloadData()
-    }
-    
-    func requestShoppingAPI() {
-        // API 키 검증
-        guard !clientID.isEmpty && !clientSecret.isEmpty else {
-            showErrorAlert(title: "설정 오류", message: "API 키가 올바르게 설정되지 않았습니다.")
-            return
-        }
-        
-        // 이미 로딩 중이거나 더 이상 데이터가 없으면 중단
-        guard !isLoading && hasMoreData else { return }
-        
-        isLoading = true
-        
-        // 로딩 인디케이터 표시
-        if currentPage == 1 {
-            showMainLoading()
-        } else {
-            showPaginationLoading()
-        }
-        
-        let url = "https://openapi.naver.com/v1/search/shop.json"
-        let startIndex = (currentPage - 1) * itemsPerPage + 1
-        
-        let parameters: Parameters = [
-            "query": searchKeyword,
-            "display": itemsPerPage,
-            "start": startIndex,
-            "sort": currentSortType.rawValue
-        ]
-        
-        let headers: HTTPHeaders = [
-            "X-Naver-Client-Id": clientID,
-            "X-Naver-Client-Secret": clientSecret
-        ]
-        
-        AF.request(url, method: .get, parameters: parameters, headers: headers)
-            .validate()
-            .response { response in
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    self.hideAllLoading()
-                }
-                
-                // HTTP 상태 코드별 처리
-                if let httpResponse = response.response {
-                    switch httpResponse.statusCode {
-                    case 200:
-                        // 성공 - 데이터 파싱 시도
-                        self.handleSuccessResponse(response.data)
-                        
-                    case 400:
-                        DispatchQueue.main.async {
-                            self.showErrorAlert(title: "검색 오류", message: "검색어를 확인해주세요.")
-                        }
-                        
-                    case 401:
-                        DispatchQueue.main.async {
-                            self.showErrorAlert(title: "인증 오류", message: "API 키 인증에 실패했습니다.")
-                        }
-                        
-                    case 403:
-                        DispatchQueue.main.async {
-                            self.showErrorAlert(title: "접근 거부", message: "API 사용 권한이 없습니다.")
-                        }
-                        
-                    case 429:
-                        DispatchQueue.main.async {
-                            self.showErrorAlert(title: "요청 한도 초과", message: "잠시 후 다시 시도해주세요.")
-                        }
-                        
-                    case 500...599:
-                        DispatchQueue.main.async {
-                            self.showErrorAlert(title: "서버 오류", message: "서버에 일시적인 문제가 발생했습니다.")
-                        }
-                        
-                    default:
-                        DispatchQueue.main.async {
-                            self.showErrorAlert(title: "네트워크 오류", message: "네트워크 연결을 확인해주세요.")
-                        }
-                    }
-                } else {
-                    // 네트워크 연결 실패
-                    DispatchQueue.main.async {
-                        self.showErrorAlert(title: "연결 실패", message: "인터넷 연결을 확인해주세요.")
-                    }
-                }
-            }
-    }
-    
-    func handleSuccessResponse(_ data: Data?) {
-        guard let data = data else {
-            DispatchQueue.main.async {
-                self.showErrorAlert(title: "데이터 오류", message: "응답 데이터가 없습니다.")
-            }
-            return
-        }
-        
-        do {
-            let shoppingResponse = try JSONDecoder().decode(NaverShoppingResponse.self, from: data)
-            print("API 성공: 페이지 \(self.currentPage), 아이템 수: \(shoppingResponse.items.count)")
-            
-            DispatchQueue.main.async {
-                if self.currentPage == 1 {
-                    // 첫 페이지면 기존 데이터 교체
-                    self.shoppingItems = shoppingResponse.items
-                    self.totalCount = shoppingResponse.total
-                    
-                    // 첫 페이지에서만 랜덤 아이템 업데이트 (검색 시마다)
-                    self.updateRandomItems()
-                } else {
-                    // 추가 페이지면 기존 데이터에 추가
-                    self.shoppingItems.append(contentsOf: shoppingResponse.items)
-                }
-                
-                // 더 이상 데이터가 없는지 확인 (두 가지 조건으로 체크)
-                let loadedCount = (self.currentPage - 1) * self.itemsPerPage + shoppingResponse.items.count
-                self.hasMoreData = shoppingResponse.items.count == self.itemsPerPage && loadedCount < shoppingResponse.total
-                
-                self.updateUI()
-                self.collectionView.reloadData()
-                self.currentPage += 1
-            }
-            
-        } catch {
-            DispatchQueue.main.async {
-                self.showErrorAlert(title: "데이터 파싱 오류", message: "응답 데이터를 처리할 수 없습니다.")
-            }
-        }
-    }
-    
-    // MARK: - Loading Methods
     func showMainLoading() {
         loadingBackgroundView.isHidden = false
         mainLoadingIndicator.startAnimating()
         view.isUserInteractionEnabled = false
     }
     
+    func hideMainLoading() {
+        loadingBackgroundView.isHidden = true
+        mainLoadingIndicator.stopAnimating()
+        view.isUserInteractionEnabled = true
+    }
+    
     func showPaginationLoading() {
         paginationLoadingIndicator.startAnimating()
     }
     
-    func hideAllLoading() {
-        loadingBackgroundView.isHidden = true
-        mainLoadingIndicator.stopAnimating()
+    func hidePaginationLoading() {
         paginationLoadingIndicator.stopAnimating()
-        view.isUserInteractionEnabled = true
-    }
-    
-    func loadNextPageIfNeeded() {
-        requestShoppingAPI()
-    }
-    
-    func updateUI() {
-        // 결과 개수 업데이트 (첫 페이지에서만)
-        if currentPage <= 2 {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .decimal
-            let countString = formatter.string(from: NSNumber(value: totalCount)) ?? "\(totalCount)"
-            resultCountLabel.text = "\(countString) 개의 검색 결과"
-        }
-        
-        // 네비게이션 타이틀 설정
-        navigationItem.title = searchKeyword
     }
     
     func showErrorAlert(title: String = "오류", message: String) {
@@ -398,9 +247,9 @@ extension ShopingSearchVC: UICollectionViewDelegate, UICollectionViewDataSource 
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == self.collectionView {
-            return shoppingItems.count
+            return viewModel.output.shoppingItems.value.count
         } else if collectionView == bottomCollectionView {
-            return randomItems.count
+            return viewModel.output.randomItems.value.count
         }
         return 0
     }
@@ -409,14 +258,14 @@ extension ShopingSearchVC: UICollectionViewDelegate, UICollectionViewDataSource 
         if collectionView == self.collectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ShopingSearchCollectionViewCell.identifier, for: indexPath) as! ShopingSearchCollectionViewCell
             
-            let item = shoppingItems[indexPath.item]
+            let item = viewModel.output.shoppingItems.value[indexPath.item]
             cell.configure(with: item)
             
             return cell
         } else if collectionView == bottomCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecommendationCollectionViewCell.identifier, for: indexPath) as! RecommendationCollectionViewCell
             
-            let item = randomItems[indexPath.item]
+            let item = viewModel.output.randomItems.value[indexPath.item]
             cell.configure(with: item)
             
             return cell
@@ -429,8 +278,8 @@ extension ShopingSearchVC: UICollectionViewDelegate, UICollectionViewDataSource 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         if collectionView == self.collectionView {
             // 마지막에서 5개 전 아이템에 도달했을 때 다음 페이지 로드
-            if indexPath.item >= shoppingItems.count - 5 {
-                loadNextPageIfNeeded()
+            if viewModel.shouldLoadNextPage(currentIndex: indexPath.item) {
+                viewModel.input.loadNextPage.value = ()
             }
         }
     }
