@@ -24,16 +24,10 @@ class SimpleTableViewExampleViewController: UIViewController {
         configureLayout()
         configure()
         bindTableView()
-        
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(dismissViewController)
-        )
     }
     
     @objc func dismissViewController() {
-        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
     }
     
     func bindTableView() {

@@ -24,7 +24,9 @@ class SimpleValidationViewController: UIViewController {
     let passwordValidLabel = UILabel()
     
     let doSomethingButton = UIButton()
-    let disposeBag = DisposeBag()
+    
+    private let viewModel = SimpleValidationViewModel()
+    private let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,51 +36,43 @@ class SimpleValidationViewController: UIViewController {
         
         configureLayout()
         configure()
-        bindValidation()
-        
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(dismissViewController)
-        )
+        bindViewModel()
     }
     
     @objc func dismissViewController() {
-        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
     }
     
-    func bindValidation() {
-        let usernameValid = usernameTextField.rx.text.orEmpty
-            .map { $0.count >= minimalUsernameLength }
-            .share(replay: 1)
-
-        let passwordValid = passwordTextField.rx.text.orEmpty
-            .map { $0.count >= minimalPasswordLength }
-            .share(replay: 1)
-
-        let everythingValid = Observable.combineLatest(usernameValid, passwordValid) { $0 && $1 }
-            .share(replay: 1)
-
-        usernameValid
-            .bind(to: passwordTextField.rx.isEnabled)
+    private func bindViewModel() {
+        let input = SimpleValidationViewModel.Input(
+            usernameText: usernameTextField.rx.text.orEmpty.asObservable(),
+            passwordText: passwordTextField.rx.text.orEmpty.asObservable(),
+            buttonTap: doSomethingButton.rx.tap
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        // UI 바인딩
+        output.passwordEnabled
+            .drive(passwordTextField.rx.isEnabled)
             .disposed(by: disposeBag)
-
-        usernameValid
-            .bind(to: usernameValidLabel.rx.isHidden)
+        
+        output.usernameErrorHidden
+            .drive(usernameValidLabel.rx.isHidden)
             .disposed(by: disposeBag)
-
-        passwordValid
-            .bind(to: passwordValidLabel.rx.isHidden)
+        
+        output.passwordErrorHidden
+            .drive(passwordValidLabel.rx.isHidden)
             .disposed(by: disposeBag)
-
-        everythingValid
-            .bind(to: doSomethingButton.rx.isEnabled)
+        
+        output.buttonEnabled
+            .drive(doSomethingButton.rx.isEnabled)
             .disposed(by: disposeBag)
-
-        doSomethingButton.rx.tap
-            .subscribe(onNext: { [weak self] _ in
-                self?.showAlert()
-            })
+        
+        output.showAlert
+            .drive(with: self) { owner, _ in
+                owner.showAlert()
+            }
             .disposed(by: disposeBag)
     }
 
@@ -158,7 +152,7 @@ class SimpleValidationViewController: UIViewController {
         }
     }
     
-    func showAlert() {
+    private func showAlert() {
         let alert = UIAlertController(
             title: "RxExample",
             message: "This is wonderful",

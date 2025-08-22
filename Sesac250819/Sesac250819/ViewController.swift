@@ -6,12 +6,14 @@
 //
 
 import UIKit
+import SnapKit
 
 class ViewController: UIViewController {
     
     private let numbersViewButton = UIButton(type: .system)
     private let simpleTableViewButton = UIButton(type: .system)
     private let simpleValidationViewButton = UIButton(type: .system)
+    private let homeworkViewButton = UIButton(type: .system)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,50 +45,66 @@ class ViewController: UIViewController {
         simpleValidationViewButton.layer.cornerRadius = 8
         simpleValidationViewButton.addTarget(self, action: #selector(simpleValidationViewButtonTapped), for: .touchUpInside)
         
+        homeworkViewButton.setTitle("HomeworkView", for: .normal)
+        homeworkViewButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+        homeworkViewButton.backgroundColor = .systemPurple
+        homeworkViewButton.setTitleColor(.white, for: .normal)
+        homeworkViewButton.layer.cornerRadius = 8
+        homeworkViewButton.addTarget(self, action: #selector(homeworkViewButtonTapped), for: .touchUpInside)
+        
         view.addSubview(numbersViewButton)
         view.addSubview(simpleTableViewButton)
         view.addSubview(simpleValidationViewButton)
-        
-        numbersViewButton.translatesAutoresizingMaskIntoConstraints = false
-        simpleTableViewButton.translatesAutoresizingMaskIntoConstraints = false
-        simpleValidationViewButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(homeworkViewButton)
     }
     
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            numbersViewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            numbersViewButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -80),
-            numbersViewButton.widthAnchor.constraint(equalToConstant: 200),
-            numbersViewButton.heightAnchor.constraint(equalToConstant: 50),
-            
-            simpleTableViewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            simpleTableViewButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            simpleTableViewButton.widthAnchor.constraint(equalToConstant: 200),
-            simpleTableViewButton.heightAnchor.constraint(equalToConstant: 50),
-            
-            simpleValidationViewButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            simpleValidationViewButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 80),
-            simpleValidationViewButton.widthAnchor.constraint(equalToConstant: 200),
-            simpleValidationViewButton.heightAnchor.constraint(equalToConstant: 50)
-        ])
+        numbersViewButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-120)
+            make.width.equalTo(200)
+            make.height.equalTo(50)
+        }
+        
+        simpleTableViewButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-40)
+            make.width.equalTo(200)
+            make.height.equalTo(50)
+        }
+        
+        simpleValidationViewButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(40)
+            make.width.equalTo(200)
+            make.height.equalTo(50)
+        }
+        
+        homeworkViewButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(120)
+            make.width.equalTo(200)
+            make.height.equalTo(50)
+        }
     }
     
     @objc private func numbersViewButtonTapped() {
         let numbersViewController = NumbersViewController()
-        let navigationController = UINavigationController(rootViewController: numbersViewController)
-        present(navigationController, animated: true, completion: nil)
+        navigationController?.pushViewController(numbersViewController, animated: true)
     }
     
     @objc private func simpleTableViewButtonTapped() {
         let tableViewController = SimpleTableViewExampleViewController()
-        let navigationController = UINavigationController(rootViewController: tableViewController)
-        present(navigationController, animated: true, completion: nil)
+        navigationController?.pushViewController(tableViewController, animated: true)
     }
     
     @objc private func simpleValidationViewButtonTapped() {
         let simpleValidationController = SimpleValidationViewController()
-        let navigationController = UINavigationController(rootViewController: simpleValidationController)
-        present(navigationController, animated: true, completion: nil)
-        
+        navigationController?.pushViewController(simpleValidationController, animated: true)
+    }
+    
+    @objc private func homeworkViewButtonTapped() {
+        let homeworkViewController = HomeworkViewController()
+        navigationController?.pushViewController(homeworkViewController, animated: true)
     }
 }

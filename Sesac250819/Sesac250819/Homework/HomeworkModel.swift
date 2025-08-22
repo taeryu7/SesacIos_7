@@ -6,3 +6,10 @@
 //
 
 import Foundation
+
+struct Person: Identifiable {
+    let id = UUID()
+    let name: String
+    let email: String
+    let profileImage: String
+}

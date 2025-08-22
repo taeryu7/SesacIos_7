@@ -18,7 +18,9 @@ class NumbersViewController: UIViewController {
     let plusLabel = UILabel()
     let separatorView = UIView()
     let resultLabel = UILabel()
-    let disposeBag = DisposeBag()
+    
+    private let viewModel = NumbersViewModel()
+    private let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,30 +30,25 @@ class NumbersViewController: UIViewController {
         
         configureLayout()
         configure()
-        bindTextFields()
-        
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(dismissViewController)
-        )
+        bindViewModel()
     }
     
     @objc func dismissViewController() {
-        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
     }
     
-    func bindTextFields() {
-        Observable.combineLatest(
-            number1TextField.rx.text.orEmpty,
-            number2TextField.rx.text.orEmpty,
-            number3TextField.rx.text.orEmpty
-        ) { textValue1, textValue2, textValue3 -> Int in
-            return (Int(textValue1) ?? 0) + (Int(textValue2) ?? 0) + (Int(textValue3) ?? 0)
-        }
-        .map { $0.description }
-        .bind(to: resultLabel.rx.text)
-        .disposed(by: disposeBag)
+    private func bindViewModel() {
+        let input = NumbersViewModel.Input(
+            number1Text: number1TextField.rx.text.orEmpty.asObservable(),
+            number2Text: number2TextField.rx.text.orEmpty.asObservable(),
+            number3Text: number3TextField.rx.text.orEmpty.asObservable()
+        )
+        
+        let output = viewModel.transform(input: input)
+        
+        output.resultText
+            .drive(resultLabel.rx.text)
+            .disposed(by: disposeBag)
     }
 
     func configure() {
