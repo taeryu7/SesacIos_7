@@ -20,6 +20,9 @@ class TamaDetailViewController: UIViewController {
     let startButton = UIButton()
     let cancelButton = UIButton()
     
+    // ViewModel
+    private var viewModel: TamaDetailViewModel?
+    
     // 데이터
     var selectedTamagochiType: String?
     var onStartButtonTapped: ((String) -> Void)?
@@ -28,66 +31,61 @@ class TamaDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupViewModel()
         configureHierarchy()
         configureLayout()
-        updateTamagochiInfo()
+        bindViewModel()
+        
+        viewModel?.viewDidLoad()
+    }
+    
+    // ViewModel 설정
+    private func setupViewModel() {
+        guard let selectedType = selectedTamagochiType else { return }
+        viewModel = TamaDetailViewModel(
+            selectedTamagochiType: selectedType,
+            isChangingMode: isChangingMode,
+            onStartButtonTapped: onStartButtonTapped
+        )
+    }
+    
+    // ViewModel 바인딩
+    private func bindViewModel() {
+        viewModel?.detailModel = { [weak self] model in
+            DispatchQueue.main.async {
+                self?.updateUI(with: model)
+            }
+        }
+        
+        viewModel?.dismissView = { [weak self] in
+            DispatchQueue.main.async {
+                self?.dismiss(animated: true)
+            }
+        }
+        
+        viewModel?.startAction = { [weak self] selectedType in
+            self?.onStartButtonTapped?(selectedType)
+        }
+    }
+    
+    // UI 업데이트
+    private func updateUI(with model: TamaDetailModel) {
+        tamagochiImageView.image = UIImage(named: model.imageName) ?? UIImage(named: "noImage")
+        nameLabel.text = model.name
+        descriptionLabel.text = model.description
+        startButton.setTitle(model.buttonTitle, for: .normal)
     }
     
     @objc private func startButtonTapped() {
-        guard let selectedType = selectedTamagochiType else { return }
-        dismiss(animated: true) {
-            self.onStartButtonTapped?(selectedType)
-        }
+        viewModel?.startButtonTapped()
     }
     
     @objc private func cancelButtonTapped() {
-        dismiss(animated: true)
+        viewModel?.cancelButtonTapped()
     }
     
     @objc private func backgroundTapped() {
-        dismiss(animated: true)
-    }
-    
-    private func updateTamagochiInfo() {
-        guard let tamagochiType = selectedTamagochiType else { return }
-        
-        tamagochiImageView.image = UIImage(named: tamagochiType) ?? UIImage(named: "noImage")
-        
-        // 다마고치 이름 설정
-        let names: [String: String] = [
-            "1-9": "따끔따끔 다마고치",
-            "2-9": "방실방실 다마고치",
-            "3-9": "반짝반짝 다마고치"
-        ]
-        nameLabel.text = names[tamagochiType] ?? "다마고치"
-        
-        // 다마고치별 설명 텍스트
-        var descriptions: [String: String] = [:]
-        
-        if isChangingMode {
-            // 다마고치 변경 모드일 때는 간단한 설명
-            descriptions = [
-                "1-9": "따끔따끔 다마고치로 변경하시겠습니까?\n현재 레벨과 데이터는 유지됩니다.",
-                "2-9": "방실방실 다마고치로 변경하시겠습니까?\n현재 레벨과 데이터는 유지됩니다.",
-                "3-9": "반짝반짝 다마고치로 변경하시겠습니까?\n현재 레벨과 데이터는 유지됩니다."
-            ]
-        } else {
-            // 최초 선택 모드일 때는 자세한 설명
-            descriptions = [
-                "1-9": "따뜻한 마음을 가진 다마고치입니다.\n함께 즐거운 시간을 보내요!",
-                "2-9": "활발하고 에너지 넘치는 다마고치입니다.\n매일 새로운 모험을 떠나요!",
-                "3-9": "차분하고 지혜로운 다마고치입니다.\n깊은 대화를 나누어요!"
-            ]
-        }
-        
-        descriptionLabel.text = descriptions[tamagochiType] ?? "귀여운 다마고치입니다.\n잘 돌봐주세요!"
-        
-        // 버튼 텍스트 변경
-        if isChangingMode {
-            startButton.setTitle("변경하기", for: .normal)
-        } else {
-            startButton.setTitle("시작하기", for: .normal)
-        }
+        viewModel?.backgroundTapped()
     }
 }
 

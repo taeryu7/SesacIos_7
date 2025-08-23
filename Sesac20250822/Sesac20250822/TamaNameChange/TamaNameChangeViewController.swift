@@ -14,74 +14,78 @@ class TamaNameChangeViewController: UIViewController {
     let separatorLine = UIView()
     let validationLabel = UILabel()
     
+    // ViewModel
+    private let viewModel = TamaNameChangeViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureHierarchy()
         configureLayout()
         setupNavigationBar()
-        loadCurrentName()
+        bindViewModel()
         
         // 텍스트필드 실시간 변경 감지
         nameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        
+        viewModel.viewDidLoad()
+    }
+    
+    // ViewModel 바인딩
+    private func bindViewModel() {
+        viewModel.initialData = { [weak self] model in
+            DispatchQueue.main.async {
+                self?.updateUI(with: model)
+            }
+        }
+        
+        viewModel.validationUpdate = { [weak self] messageType, isEnabled in
+            DispatchQueue.main.async {
+                self?.updateValidation(messageType: messageType, isEnabled: isEnabled)
+            }
+        }
+        
+        viewModel.dismissView = { [weak self] in
+            DispatchQueue.main.async {
+                self?.navigationController?.popViewController(animated: true)
+            }
+        }
+    }
+    
+    // UI 업데이트
+    private func updateUI(with model: TamaNameChangeModel) {
+        nameTextField.text = model.currentName
+        updateValidation(messageType: model.validationMessageType, isEnabled: model.isSaveButtonEnabled)
+    }
+    
+    private func updateValidation(messageType: ValidationMessageType, isEnabled: Bool) {
+        let (message, color) = getValidationDisplay(for: messageType)
+        validationLabel.text = message
+        validationLabel.textColor = color
+        navigationItem.rightBarButtonItem?.isEnabled = isEnabled
+    }
+    
+    private func getValidationDisplay(for type: ValidationMessageType) -> (String, UIColor) {
+        switch type {
+        case .empty:
+            return ("대장 이름을 입력해주세요", .systemGray)
+        case .tooShort:
+            return ("대장 이름은 2글자 이상이어야 합니다", .systemRed)
+        case .tooLong:
+            return ("대장 이름은 6글자 이하여야 합니다", .systemRed)
+        case .valid:
+            return ("사용 가능한 이름입니다", .systemGreen)
+        }
     }
     
     @objc private func saveButtonTapped() {
         guard let newName = nameTextField.text else { return }
-        
-        let trimmedName = newName.trimmingCharacters(in: .whitespaces)
-        
-        // 유효성 검사
-        if !isValidName(trimmedName) {
-            return 
-        }
-        
-        // 이름 저장
-        TamagochiUserDefaults.shared.saveTamagochiName(trimmedName)
-        
-        navigationController?.popViewController(animated: true)
+        viewModel.saveButtonTapped(name: newName)
     }
     
     @objc private func textFieldDidChange() {
         guard let text = nameTextField.text else { return }
-        let trimmedText = text.trimmingCharacters(in: .whitespaces)
-        
-        updateValidationMessage(for: trimmedText)
-        updateSaveButtonState(for: trimmedText)
-    }
-    
-    private func isValidName(_ name: String) -> Bool {
-        return name.count >= 2 && name.count <= 6
-    }
-    
-    private func updateValidationMessage(for name: String) {
-        if name.isEmpty {
-            validationLabel.text = "대장 이름을 입력해주세요"
-            validationLabel.textColor = .systemGray
-        } else if name.count < 2 {
-            validationLabel.text = "대장 이름은 2글자 이상이어야 합니다"
-            validationLabel.textColor = .systemRed
-        } else if name.count > 6 {
-            validationLabel.text = "대장 이름은 6글자 이하여야 합니다"
-            validationLabel.textColor = .systemRed
-        } else {
-            validationLabel.text = "사용 가능한 이름입니다"
-            validationLabel.textColor = .systemGreen
-        }
-    }
-    
-    private func updateSaveButtonState(for name: String) {
-        let isValid = isValidName(name)
-        navigationItem.rightBarButtonItem?.isEnabled = isValid
-    }
-    
-    private func loadCurrentName() {
-        let currentName = TamagochiUserDefaults.shared.loadTamagochiName()
-        nameTextField.text = currentName
-        
-        // 초기 유효성 검사
-        updateValidationMessage(for: currentName)
-        updateSaveButtonState(for: currentName)
+        viewModel.nameTextChanged(text)
     }
 }
 

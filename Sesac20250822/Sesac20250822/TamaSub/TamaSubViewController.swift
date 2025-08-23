@@ -12,11 +12,11 @@ class TamaSubViewController: UIViewController {
     
     let tableView = UITableView()
     
-    let settingItems = [
-        ("내 이름 변경하기", "current_name"),
-        ("다마고치 변경하기", ""),
-        ("데이터 초기화", "")
-    ]
+    // ViewModel
+    private let viewModel = TamaSubViewModel()
+    
+    // 데이터
+    private var settingItems: [TamaSubModel] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,11 +25,42 @@ class TamaSubViewController: UIViewController {
         configureLayout()
         setupNavigationBar()
         setupTableView()
+        bindViewModel()
+        
+        viewModel.viewDidLoad()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        tableView.reloadData() // 테이블뷰 새로고침
+        viewModel.viewWillAppear()
+    }
+    
+    // ViewModel 바인딩
+    private func bindViewModel() {
+        viewModel.settingItems = { [weak self] items in
+            DispatchQueue.main.async {
+                self?.settingItems = items
+                self?.tableView.reloadData()
+            }
+        }
+        
+        viewModel.showNameChangeScreen = { [weak self] in
+            DispatchQueue.main.async {
+                self?.showNameChangeScreen()
+            }
+        }
+        
+        viewModel.showTamagochiChangeScreen = { [weak self] in
+            DispatchQueue.main.async {
+                self?.showTamagochiChangeScreen()
+            }
+        }
+        
+        viewModel.showDataResetAlert = { [weak self] in
+            DispatchQueue.main.async {
+                self?.showDataResetScreen()
+            }
+        }
     }
     
     private func showNameChangeScreen() {
@@ -131,14 +162,7 @@ extension TamaSubViewController: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SettingCell", for: indexPath) as! SettingTableViewCell
         
         let item = settingItems[indexPath.row]
-        var subtitle = item.1
-        
-        // 현재 이름을 동적으로 가져오기
-        if indexPath.row == 0 {
-            subtitle = TamagochiUserDefaults.shared.loadTamagochiName()
-        }
-        
-        cell.configure(title: item.0, subtitle: subtitle)
+        cell.configure(title: item.title, subtitle: item.subtitle)
         
         return cell
     }
@@ -149,17 +173,7 @@ extension TamaSubViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
-        switch indexPath.row {
-        case 0: // 내 이름 변경하기
-            showNameChangeScreen()
-        case 1: // 다마고치 변경하기
-            showTamagochiChangeScreen()
-        case 2: // 데이터 초기화
-            showDataResetScreen()
-        default:
-            break
-        }
+        viewModel.didSelectMenu(at: indexPath.row)
     }
 }
 
