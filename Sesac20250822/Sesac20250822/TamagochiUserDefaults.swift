@@ -16,17 +16,15 @@ class TamagochiUserDefaults {
     private enum Keys {
         static let selectedTamagochiType = "selectedTamagochiType"
         static let tamagochiLevel = "tamagochiLevel"
-        static let tamagochiStage = "tamagochiStage"
         static let riceCount = "riceCount"
         static let waterCount = "waterCount"
         static let tamagochiName = "tamagochiName"
         static let isFirstLaunch = "isFirstLaunch"
     }
     
-    // 다마고치 상태 저장
-    func saveTamagochiData(level: Int, stage: Int, riceCount: Int, waterCount: Int) {
+    // 다마고치 상태 저장 (stage 제거, level만 사용)
+    func saveTamagochiData(level: Int, riceCount: Int, waterCount: Int) {
         UserDefaults.standard.set(level, forKey: Keys.tamagochiLevel)
-        UserDefaults.standard.set(stage, forKey: Keys.tamagochiStage)
         UserDefaults.standard.set(riceCount, forKey: Keys.riceCount)
         UserDefaults.standard.set(waterCount, forKey: Keys.waterCount)
     }
@@ -34,10 +32,6 @@ class TamagochiUserDefaults {
     // 다마고치 상태 로드
     func loadTamagochiLevel() -> Int {
         return UserDefaults.standard.integer(forKey: Keys.tamagochiLevel) == 0 ? 1 : UserDefaults.standard.integer(forKey: Keys.tamagochiLevel)
-    }
-    
-    func loadTamagochiStage() -> Int {
-        return UserDefaults.standard.integer(forKey: Keys.tamagochiStage) == 0 ? 1 : UserDefaults.standard.integer(forKey: Keys.tamagochiStage)
     }
     
     func loadRiceCount() -> Int {
@@ -79,7 +73,6 @@ class TamagochiUserDefaults {
     func resetAllData() {
         UserDefaults.standard.removeObject(forKey: Keys.selectedTamagochiType)
         UserDefaults.standard.removeObject(forKey: Keys.tamagochiLevel)
-        UserDefaults.standard.removeObject(forKey: Keys.tamagochiStage)
         UserDefaults.standard.removeObject(forKey: Keys.riceCount)
         UserDefaults.standard.removeObject(forKey: Keys.waterCount)
         UserDefaults.standard.removeObject(forKey: Keys.tamagochiName)

@@ -10,59 +10,202 @@ import SnapKit
 
 class TamaSubViewController: UIViewController {
     
-    let nickNameTextField = UITextField()
+    let tableView = UITableView()
+    
+    let settingItems = [
+        ("내 이름 변경하기", "current_name"),
+        ("다마고치 변경하기", ""),
+        ("데이터 초기화", "")
+    ]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureHierarchy()
-        configureUView()
         configureLayout()
         setupNavigationBar()
+        setupTableView()
     }
     
-    @objc private func saveButtonClicked() {
-        print(#function)
-        navigationController?.popViewController(animated: true)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData() // 테이블뷰 새로고침
+    }
+    
+    private func showNameChangeScreen() {
+        let nameChangeVC = TamaNameChangeViewController()
+        navigationController?.pushViewController(nameChangeVC, animated: true)
+    }
+    
+    private func showTamagochiChangeScreen() {
+        // 현재 데이터 백업
+        let currentLevel = TamagochiUserDefaults.shared.loadTamagochiLevel()
+        let currentRiceCount = TamagochiUserDefaults.shared.loadRiceCount()
+        let currentWaterCount = TamagochiUserDefaults.shared.loadWaterCount()
+        let currentName = TamagochiUserDefaults.shared.loadTamagochiName()
+        
+        let selectVC = TamaSelectViewController()
+        
+        // 다마고치 변경 클로저
+        selectVC.isChangingTamagochi = true
+        selectVC.onTamagochiChanged = { [weak self] in
+            TamagochiUserDefaults.shared.saveTamagochiData(
+                level: currentLevel,
+                riceCount: currentRiceCount,
+                waterCount: currentWaterCount
+            )
+            TamagochiUserDefaults.shared.saveTamagochiName(currentName)
+            
+            // 메인 화면으로 돌아가기
+            self?.navigationController?.popToRootViewController(animated: true)
+        }
+        
+        navigationController?.pushViewController(selectVC, animated: true)
+    }
+    
+    private func showDataResetScreen() {
+        let alert = UIAlertController(
+            title: "데이터 초기화",
+            message: "정말 다시 처음부터 시작하실 건가요?",
+            preferredStyle: .alert
+        )
+        
+        let cancelAction = UIAlertAction(title: "아니", style: .cancel)
+        let resetAction = UIAlertAction(title: "응", style: .destructive) { _ in
+            // 모든 UserDefaults 데이터 삭제
+            TamagochiUserDefaults.shared.resetAllData()
+            
+            // 다마고치 선택 화면으로 이동
+            let selectVC = TamaSelectViewController()
+            let navController = UINavigationController(rootViewController: selectVC)
+            
+            if let sceneDelegate = self.view.window?.windowScene?.delegate as? SceneDelegate {
+                sceneDelegate.window?.rootViewController = navController
+                sceneDelegate.window?.makeKeyAndVisible()
+            }
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(resetAction)
+        
+        present(alert, animated: true)
     }
 }
 
 extension TamaSubViewController {
     
     func configureHierarchy() {
-        view.addSubview(nickNameTextField)
-    }
-    
-    func configureUView() {
-        nickNameTextField.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
-            make.trailing.equalTo(view.safeAreaLayoutGuide).offset(-16)
-            make.height.equalTo(44)
-        }
+        view.addSubview(tableView)
     }
     
     func configureLayout() {
         view.backgroundColor = .systemBackground
         
-        // 텍스트필드 설정
-        nickNameTextField.backgroundColor = UIColor(red: 1, green: 0.28367542690000003, blue: 0.0, alpha: 1)
-        nickNameTextField.textColor = .white
-        nickNameTextField.placeholder = "닉네임을 입력하세요"
-        nickNameTextField.tintColor = .orange
-        nickNameTextField.borderStyle = .roundedRect
-        nickNameTextField.font = UIFont.systemFont(ofSize: 14)
+        tableView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
     }
     
     private func setupNavigationBar() {
-        // 저장 버튼 설정
-        let saveBarButton = UIBarButtonItem(
-            title: "저장",
-            style: .plain,
-            target: self,
-            action: #selector(saveButtonClicked)
-        )
-        navigationItem.rightBarButtonItem = saveBarButton
+        navigationItem.title = "설정"
+        
+        navigationController?.navigationBar.tintColor = UIColor.label
+    }
+    
+    private func setupTableView() {
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(SettingTableViewCell.self, forCellReuseIdentifier: "SettingCell")
+        tableView.separatorStyle = .singleLine
+        tableView.backgroundColor = .systemBackground
+    }
+}
+
+extension TamaSubViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return settingItems.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "SettingCell", for: indexPath) as! SettingTableViewCell
+        
+        let item = settingItems[indexPath.row]
+        var subtitle = item.1
+        
+        // 현재 이름을 동적으로 가져오기
+        if indexPath.row == 0 {
+            subtitle = TamagochiUserDefaults.shared.loadTamagochiName()
+        }
+        
+        cell.configure(title: item.0, subtitle: subtitle)
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        switch indexPath.row {
+        case 0: // 내 이름 변경하기
+            showNameChangeScreen()
+        case 1: // 다마고치 변경하기
+            showTamagochiChangeScreen()
+        case 2: // 데이터 초기화
+            showDataResetScreen()
+        default:
+            break
+        }
+    }
+}
+
+// 설정 테이블뷰 셀
+class SettingTableViewCell: UITableViewCell {
+    
+    let titleLabel = UILabel()
+    let subtitleLabel = UILabel()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupUI() {
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(subtitleLabel)
+        
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(contentView).offset(16)
+            make.centerY.equalTo(contentView)
+        }
+        
+        subtitleLabel.snp.makeConstraints { make in
+            make.trailing.equalTo(contentView).offset(-16)
+            make.centerY.equalTo(contentView)
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8)
+        }
+        
+        titleLabel.font = UIFont.systemFont(ofSize: 16)
+        titleLabel.textColor = .label
+        
+        subtitleLabel.font = UIFont.systemFont(ofSize: 14)
+        subtitleLabel.textColor = .systemGray
+        subtitleLabel.textAlignment = .right
+        
+        accessoryType = .disclosureIndicator
+    }
+    
+    func configure(title: String, subtitle: String) {
+        titleLabel.text = title
+        subtitleLabel.text = subtitle.isEmpty ? "" : subtitle
     }
 }
 
