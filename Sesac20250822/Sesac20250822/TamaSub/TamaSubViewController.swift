@@ -7,15 +7,16 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class TamaSubViewController: UIViewController {
     
     let tableView = UITableView()
     
-    // ViewModel
     private let viewModel = TamaSubViewModel()
+    private let disposeBag = DisposeBag()
     
-    // 데이터
     private var settingItems: [TamaSubModel] = []
     
     override func viewDidLoad() {
@@ -27,40 +28,50 @@ class TamaSubViewController: UIViewController {
         setupTableView()
         bindViewModel()
         
-        viewModel.viewDidLoad()
+        viewModel.viewDidLoadTrigger.onNext(())
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.viewWillAppear()
+        viewModel.viewWillAppearTrigger.onNext(())
     }
     
-    // ViewModel 바인딩
     private func bindViewModel() {
-        viewModel.settingItems = { [weak self] items in
-            DispatchQueue.main.async {
+        viewModel.settingItems
+            .drive(onNext: { [weak self] items in
                 self?.settingItems = items
                 self?.tableView.reloadData()
-            }
-        }
+            })
+            .disposed(by: disposeBag)
         
-        viewModel.showNameChangeScreen = { [weak self] in
-            DispatchQueue.main.async {
+        tableView.rx.itemSelected
+            .map { $0.row }
+            .bind(to: viewModel.menuSelection)
+            .disposed(by: disposeBag)
+        
+        tableView.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                self?.tableView.deselectRow(at: indexPath, animated: true)
+            })
+            .disposed(by: disposeBag)
+        
+        viewModel.showNameChangeScreen
+            .drive(onNext: { [weak self] in
                 self?.showNameChangeScreen()
-            }
-        }
+            })
+            .disposed(by: disposeBag)
         
-        viewModel.showTamagochiChangeScreen = { [weak self] in
-            DispatchQueue.main.async {
+        viewModel.showTamagochiChangeScreen
+            .drive(onNext: { [weak self] in
                 self?.showTamagochiChangeScreen()
-            }
-        }
+            })
+            .disposed(by: disposeBag)
         
-        viewModel.showDataResetAlert = { [weak self] in
-            DispatchQueue.main.async {
+        viewModel.showDataResetAlert
+            .drive(onNext: { [weak self] in
                 self?.showDataResetScreen()
-            }
-        }
+            })
+            .disposed(by: disposeBag)
     }
     
     private func showNameChangeScreen() {
@@ -69,7 +80,6 @@ class TamaSubViewController: UIViewController {
     }
     
     private func showTamagochiChangeScreen() {
-        // 현재 데이터 백업
         let currentLevel = TamagochiUserDefaults.shared.loadTamagochiLevel()
         let currentRiceCount = TamagochiUserDefaults.shared.loadRiceCount()
         let currentWaterCount = TamagochiUserDefaults.shared.loadWaterCount()
@@ -77,7 +87,6 @@ class TamaSubViewController: UIViewController {
         
         let selectVC = TamaSelectViewController()
         
-        // 다마고치 변경 클로저
         selectVC.isChangingTamagochi = true
         selectVC.onTamagochiChanged = { [weak self] in
             TamagochiUserDefaults.shared.saveTamagochiData(
@@ -87,7 +96,6 @@ class TamaSubViewController: UIViewController {
             )
             TamagochiUserDefaults.shared.saveTamagochiName(currentName)
             
-            // 메인 화면으로 돌아가기
             self?.navigationController?.popToRootViewController(animated: true)
         }
         
@@ -103,10 +111,8 @@ class TamaSubViewController: UIViewController {
         
         let cancelAction = UIAlertAction(title: "아니", style: .cancel)
         let resetAction = UIAlertAction(title: "응", style: .destructive) { _ in
-            // 모든 UserDefaults 데이터 삭제
             TamagochiUserDefaults.shared.resetAllData()
             
-            // 다마고치 선택 화면으로 이동
             let selectVC = TamaSelectViewController()
             let navController = UINavigationController(rootViewController: selectVC)
             
@@ -170,14 +176,8 @@ extension TamaSubViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 60
     }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        viewModel.didSelectMenu(at: indexPath.row)
-    }
 }
 
-// 설정 테이블뷰 셀
 class SettingTableViewCell: UITableViewCell {
     
     let titleLabel = UILabel()

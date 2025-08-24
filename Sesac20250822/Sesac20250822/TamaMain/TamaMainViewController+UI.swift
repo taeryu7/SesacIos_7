@@ -171,7 +171,6 @@ extension TamaMainViewController {
         feedButton.tintColor = .white
         feedButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         feedButton.layer.cornerRadius = 8
-        feedButton.addTarget(self, action: #selector(feedButtonTapped), for: .touchUpInside)
         
         // 물 텍스트필드
         waterTextField.placeholder = "물주세요"
@@ -192,6 +191,5 @@ extension TamaMainViewController {
         waterButton.tintColor = .white
         waterButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         waterButton.layer.cornerRadius = 8
-        waterButton.addTarget(self, action: #selector(waterButtonTapped), for: .touchUpInside)
     }
 }

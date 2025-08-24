@@ -6,86 +6,94 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 protocol TamaSelectViewModelInput {
-    func viewDidLoad()
-    func activeTamagochiTapped(at index: Int)
-    func startButtonTapped()
+    var viewDidLoadTrigger: PublishSubject<Void> { get }
+    var activeTamagochiTap: PublishSubject<Int> { get }
+    var selectedTamagochi: PublishSubject<String> { get }
 }
 
 protocol TamaSelectViewModelOutput {
-    var selectModel: ((TamaSelectModel) -> Void)? { get set }
-    var showTamaDetailPopup: ((String, Bool) -> Void)? { get set }
-    var showAlert: ((String, String) -> Void)? { get set }
-    var navigateToMain: (() -> Void)? { get set }
-    var dismissToMain: (() -> Void)? { get set }
+    var selectModel: Driver<TamaSelectModel> { get }
+    var showTamaDetailPopup: Driver<(String, Bool)> { get }
+    var showAlert: Driver<(String, String)> { get }
+    var navigateToMain: Driver<Void> { get }
+    var dismissToMain: Driver<Void> { get }
 }
 
 final class TamaSelectViewModel: TamaSelectViewModelInput, TamaSelectViewModelOutput {
     
-    // 출력 프로퍼티들
-    var selectModel: ((TamaSelectModel) -> Void)?
-    var showTamaDetailPopup: ((String, Bool) -> Void)?
-    var showAlert: ((String, String) -> Void)?
-    var navigateToMain: (() -> Void)?
-    var dismissToMain: (() -> Void)?
+    let viewDidLoadTrigger = PublishSubject<Void>()
+    let activeTamagochiTap = PublishSubject<Int>()
+    let selectedTamagochi = PublishSubject<String>()
     
-    // 비공개 프로퍼티들
-    private var selectedTamagochiType: String?
+    let selectModel: Driver<TamaSelectModel>
+    let showTamaDetailPopup: Driver<(String, Bool)>
+    let showAlert: Driver<(String, String)>
+    let navigateToMain: Driver<Void>
+    let dismissToMain: Driver<Void>
+    
+    private let selectModelSubject = PublishSubject<TamaSelectModel>()
+    private let showTamaDetailPopupSubject = PublishSubject<(String, Bool)>()
+    private let showAlertSubject = PublishSubject<(String, String)>()
+    private let navigateToMainSubject = PublishSubject<Void>()
+    private let dismissToMainSubject = PublishSubject<Void>()
+    
     private var isChangingMode: Bool
     private var onTamagochiChanged: (() -> Void)?
     private let userDefaults = TamagochiUserDefaults.shared
+    private let disposeBag = DisposeBag()
     
-    // 초기화
     init(isChangingMode: Bool = false, onTamagochiChanged: (() -> Void)? = nil) {
         self.isChangingMode = isChangingMode
         self.onTamagochiChanged = onTamagochiChanged
-    }
-    
-    // 입력 메서드들
-    func viewDidLoad() {
-        let model = TamaSelectModel(isChangingMode: isChangingMode)
-        selectModel?(model)
-    }
-    
-    func activeTamagochiTapped(at index: Int) {
-        guard index < TamagochiType.allCases.count else { return }
         
-        let selectedType = TamagochiType.allCases[index]
-        showTamaDetailPopup?(selectedType.activeImageName, isChangingMode)
-    }
-    
-    func startButtonTapped() {
-        guard let selectedType = selectedTamagochiType else {
-            showAlert?("알림", "다마고치를 선택해주세요!")
-            return
-        }
+        self.selectModel = selectModelSubject.asDriver(onErrorJustReturn: TamaSelectModel(isChangingMode: false))
+        self.showTamaDetailPopup = showTamaDetailPopupSubject.asDriver(onErrorJustReturn: ("1-9", false))
+        self.showAlert = showAlertSubject.asDriver(onErrorJustReturn: ("", ""))
+        self.navigateToMain = navigateToMainSubject.asDriver(onErrorJustReturn: ())
+        self.dismissToMain = dismissToMainSubject.asDriver(onErrorJustReturn: ())
         
-        processSelectedTamagochi(selectedType)
+        setupBindings()
     }
     
-    // 외부에서 선택된 다마고치 설정
-    func setSelectedTamagochi(_ type: String) {
-        selectedTamagochiType = type
-        processSelectedTamagochi(type)
+    private func setupBindings() {
+        viewDidLoadTrigger
+            .subscribe(onNext: { [weak self] in
+                guard let self = self else { return }
+                let model = TamaSelectModel(isChangingMode: self.isChangingMode)
+                self.selectModelSubject.onNext(model)
+            })
+            .disposed(by: disposeBag)
+        
+        activeTamagochiTap
+            .subscribe(onNext: { [weak self] index in
+                guard let self = self else { return }
+                guard index < TamagochiType.allCases.count else { return }
+                
+                let selectedType = TamagochiType.allCases[index]
+                self.showTamaDetailPopupSubject.onNext((selectedType.activeImageName, self.isChangingMode))
+            })
+            .disposed(by: disposeBag)
+        
+        selectedTamagochi
+            .subscribe(onNext: { [weak self] selectedType in
+                self?.processSelectedTamagochi(selectedType)
+            })
+            .disposed(by: disposeBag)
     }
-}
-
-// 비공개 메서드들
-private extension TamaSelectViewModel {
     
-    func processSelectedTamagochi(_ selectedType: String) {
-        // 선택된 다마고치 저장
+    private func processSelectedTamagochi(_ selectedType: String) {
         userDefaults.saveSelectedTamagochiType(selectedType)
         
         if isChangingMode {
-            // 다마고치 변경 모드일 때
             onTamagochiChanged?()
-            dismissToMain?()
+            dismissToMainSubject.onNext(())
         } else {
-            // 최초 선택 모드일 때
             userDefaults.setFirstLaunchCompleted()
-            navigateToMain?()
+            navigateToMainSubject.onNext(())
         }
     }
 }

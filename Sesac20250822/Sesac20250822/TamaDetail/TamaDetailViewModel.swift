@@ -6,51 +6,83 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 protocol TamaDetailViewModelInput {
-    func viewDidLoad()
-    func startButtonTapped()
-    func cancelButtonTapped()
-    func backgroundTapped()
+    var viewDidLoadTrigger: PublishSubject<Void> { get }
+    var startButtonTap: PublishSubject<Void> { get }
+    var cancelButtonTap: PublishSubject<Void> { get }
+    var backgroundTap: PublishSubject<Void> { get }
 }
 
 protocol TamaDetailViewModelOutput {
-    var detailModel: ((TamaDetailModel) -> Void)? { get set }
-    var dismissView: (() -> Void)? { get set }
-    var startAction: ((String) -> Void)? { get set }
+    var detailModel: Driver<TamaDetailModel> { get }
+    var dismissView: Driver<Void> { get }
+    var startAction: Driver<String> { get }
 }
 
 final class TamaDetailViewModel: TamaDetailViewModelInput, TamaDetailViewModelOutput {
     
-    var detailModel: ((TamaDetailModel) -> Void)?
-    var dismissView: (() -> Void)?
-    var startAction: ((String) -> Void)?
+    let viewDidLoadTrigger = PublishSubject<Void>()
+    let startButtonTap = PublishSubject<Void>()
+    let cancelButtonTap = PublishSubject<Void>()
+    let backgroundTap = PublishSubject<Void>()
+    
+    let detailModel: Driver<TamaDetailModel>
+    let dismissView: Driver<Void>
+    let startAction: Driver<String>
+    
+    private let detailModelSubject = PublishSubject<TamaDetailModel>()
+    private let dismissSubject = PublishSubject<Void>()
+    private let startActionSubject = PublishSubject<String>()
     
     private var selectedTamagochiType: String
     private var isChangingMode: Bool
-    private var onStartButtonTapped: ((String) -> Void)?
+    private let disposeBag = DisposeBag()
     
-    init(selectedTamagochiType: String, isChangingMode: Bool = false, onStartButtonTapped: ((String) -> Void)? = nil) {
+    init(selectedTamagochiType: String, isChangingMode: Bool = false) {
         self.selectedTamagochiType = selectedTamagochiType
         self.isChangingMode = isChangingMode
-        self.onStartButtonTapped = onStartButtonTapped
+        
+        self.detailModel = detailModelSubject.asDriver(onErrorJustReturn: TamaDetailModel(
+            tamagochiType: "1-9",
+            name: "다마고치",
+            description: "귀여운 다마고치입니다.",
+            buttonTitle: "시작하기"
+        ))
+        self.dismissView = dismissSubject.asDriver(onErrorJustReturn: ())
+        self.startAction = startActionSubject.asDriver(onErrorJustReturn: "")
+        
+        setupBindings()
     }
     
-    func viewDidLoad() {
-        updateTamagochiInfo()
-    }
-    
-    func startButtonTapped() {
-        startAction?(selectedTamagochiType)
-        dismissView?()
-    }
-    
-    func cancelButtonTapped() {
-        dismissView?()
-    }
-    
-    func backgroundTapped() {
-        dismissView?()
+    private func setupBindings() {
+        viewDidLoadTrigger
+            .subscribe(onNext: { [weak self] in
+                self?.updateTamagochiInfo()
+            })
+            .disposed(by: disposeBag)
+        
+        startButtonTap
+            .subscribe(onNext: { [weak self] in
+                guard let self = self else { return }
+                self.startActionSubject.onNext(self.selectedTamagochiType)
+                self.dismissSubject.onNext(())
+            })
+            .disposed(by: disposeBag)
+        
+        cancelButtonTap
+            .subscribe(onNext: { [weak self] in
+                self?.dismissSubject.onNext(())
+            })
+            .disposed(by: disposeBag)
+        
+        backgroundTap
+            .subscribe(onNext: { [weak self] in
+                self?.dismissSubject.onNext(())
+            })
+            .disposed(by: disposeBag)
     }
 }
 
@@ -68,7 +100,7 @@ private extension TamaDetailViewModel {
             buttonTitle: buttonTitle
         )
         
-        detailModel?(model)
+        detailModelSubject.onNext(model)
     }
     
     func getTamagochiName() -> String {
@@ -101,7 +133,7 @@ private extension TamaDetailViewModel {
         let descriptions: [String: String] = [
             "1-9": "따뜻한 마음을 가진 다마고치입니다.\n함께 즐거운 시간을 보내요!",
             "2-9": "활발하고 에너지 넘치는 다마고치입니다.\n매일 새로운 모험을 떠나요!",
-            "3-9": "차분하고 지혜로운 다마고치입니다.\n깊은 대화를 나눠어요!"
+            "3-9": "차분하고 지혜로운 다마고치입니다.\n깊은 대화를 나눠 어요!"
         ]
         return descriptions[selectedTamagochiType] ?? "귀여운 다마고치입니다.\n잘 돌봐주세요!"
     }

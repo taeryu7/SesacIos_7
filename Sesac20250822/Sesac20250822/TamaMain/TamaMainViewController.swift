@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class TamaMainViewController: UIViewController {
     
@@ -26,6 +28,7 @@ class TamaMainViewController: UIViewController {
     
     // ViewModel
     private let viewModel = TamaMainViewModel()
+    private let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,14 +40,14 @@ class TamaMainViewController: UIViewController {
         setupNavigationBar()
         bindViewModel()
         
-        viewModel.viewDidLoad()
+        viewModel.viewDidLoadTrigger.onNext(())
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print(#function)
         
-        viewModel.viewWillAppear()
+        viewModel.viewWillAppearTrigger.onNext(())
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -54,35 +57,44 @@ class TamaMainViewController: UIViewController {
     
     // ViewModel 바인딩
     private func bindViewModel() {
-        // ViewModel Output 바인딩
-        viewModel.tamagochiModel = { [weak self] model in
-            DispatchQueue.main.async {
+        // Input 바인딩
+        feedButton.rx.tap
+            .withLatestFrom(feedTextField.rx.text.orEmpty)
+            .bind(to: viewModel.feedButtonTap)
+            .disposed(by: disposeBag)
+        
+        waterButton.rx.tap
+            .withLatestFrom(waterTextField.rx.text.orEmpty)
+            .bind(to: viewModel.waterButtonTap)
+            .disposed(by: disposeBag)
+        
+        // Output 바인딩
+        viewModel.tamagochiModel
+            .drive(onNext: { [weak self] model in
                 self?.updateUI(with: model)
-            }
-        }
+            })
+            .disposed(by: disposeBag)
         
-        viewModel.bubbleMessage = { [weak self] message in
-            DispatchQueue.main.async {
-                self?.bubbleLabel.text = message
-            }
-        }
+        viewModel.bubbleMessage
+            .drive(bubbleLabel.rx.text)
+            .disposed(by: disposeBag)
         
-        viewModel.showAlert = { [weak self] title, message in
-            DispatchQueue.main.async {
+        viewModel.showAlert
+            .drive(onNext: { [weak self] title, message in
                 self?.showAlert(title: title, message: message)
-            }
-        }
+            })
+            .disposed(by: disposeBag)
         
-        viewModel.clearTextField = { [weak self] type in
-            DispatchQueue.main.async {
+        viewModel.clearTextField
+            .drive(onNext: { [weak self] type in
                 switch type {
                 case .feed:
                     self?.feedTextField.text = ""
                 case .water:
                     self?.waterTextField.text = ""
                 }
-            }
-        }
+            })
+            .disposed(by: disposeBag)
     }
     
     // UI 업데이트
@@ -93,16 +105,6 @@ class TamaMainViewController: UIViewController {
         
         // 다마고치 이미지 업데이트
         tamagochiImageView.image = UIImage(named: model.imageName) ?? UIImage(named: "noImage")
-    }
-    
-    @objc func feedButtonTapped() {
-        let inputText = feedTextField.text ?? ""
-        viewModel.feedButtonTapped(inputText: inputText)
-    }
-    
-    @objc func waterButtonTapped() {
-        let inputText = waterTextField.text ?? ""
-        viewModel.waterButtonTapped(inputText: inputText)
     }
     
     @objc private func profileButtonTapped() {

@@ -6,66 +6,95 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 protocol TamaSubViewModelInput {
-    func viewDidLoad()
-    func viewWillAppear()
-    func didSelectMenu(at index: Int)
+    var viewDidLoadTrigger: PublishSubject<Void> { get }
+    var viewWillAppearTrigger: PublishSubject<Void> { get }
+    var menuSelection: PublishSubject<Int> { get }
 }
 
 protocol TamaSubViewModelOutput {
-    var settingItems: (([TamaSubModel]) -> Void)? { get set }
-    var showNameChangeScreen: (() -> Void)? { get set }
-    var showTamagochiChangeScreen: (() -> Void)? { get set }
-    var showDataResetAlert: (() -> Void)? { get set }
+    var settingItems: Driver<[TamaSubModel]> { get }
+    var showNameChangeScreen: Driver<Void> { get }
+    var showTamagochiChangeScreen: Driver<Void> { get }
+    var showDataResetAlert: Driver<Void> { get }
 }
 
 final class TamaSubViewModel: TamaSubViewModelInput, TamaSubViewModelOutput {
     
-    var settingItems: (([TamaSubModel]) -> Void)?
-    var showNameChangeScreen: (() -> Void)?
-    var showTamagochiChangeScreen: (() -> Void)?
-    var showDataResetAlert: (() -> Void)?
+    let viewDidLoadTrigger = PublishSubject<Void>()
+    let viewWillAppearTrigger = PublishSubject<Void>()
+    let menuSelection = PublishSubject<Int>()
+    
+    let settingItems: Driver<[TamaSubModel]>
+    let showNameChangeScreen: Driver<Void>
+    let showTamagochiChangeScreen: Driver<Void>
+    let showDataResetAlert: Driver<Void>
+    
+    private let settingItemsSubject = BehaviorSubject<[TamaSubModel]>(value: [])
+    private let showNameChangeScreenSubject = PublishSubject<Void>()
+    private let showTamagochiChangeScreenSubject = PublishSubject<Void>()
+    private let showDataResetAlertSubject = PublishSubject<Void>()
     
     private let userDefaults = TamagochiUserDefaults.shared
-    private var menuItems: [TamaSubModel] = []
+    private let disposeBag = DisposeBag()
     
-    func viewDidLoad() {
-        setupMenuItems()
-        settingItems?(menuItems)
-    }
-    
-    func viewWillAppear() {
-        // 이름이 변경될 수 있으므로 다시 로드
-        setupMenuItems()
-        settingItems?(menuItems)
-    }
-    
-    func didSelectMenu(at index: Int) {
-        guard index < menuItems.count else { return }
+    init() {
+        self.settingItems = settingItemsSubject.asDriver(onErrorJustReturn: [])
+        self.showNameChangeScreen = showNameChangeScreenSubject.asDriver(onErrorJustReturn: ())
+        self.showTamagochiChangeScreen = showTamagochiChangeScreenSubject.asDriver(onErrorJustReturn: ())
+        self.showDataResetAlert = showDataResetAlertSubject.asDriver(onErrorJustReturn: ())
         
-        let selectedMenu = menuItems[index]
-        
-        switch selectedMenu.menuType {
-        case .changeName:
-            showNameChangeScreen?()
-        case .changeTamagochi:
-            showTamagochiChangeScreen?()
-        case .resetData:
-            showDataResetAlert?()
-        }
+        setupBindings()
     }
-}
-
-private extension TamaSubViewModel {
     
-    func setupMenuItems() {
+    private func setupBindings() {
+        viewDidLoadTrigger
+            .subscribe(onNext: { [weak self] in
+                self?.setupMenuItems()
+            })
+            .disposed(by: disposeBag)
+        
+        viewWillAppearTrigger
+            .subscribe(onNext: { [weak self] in
+                self?.setupMenuItems()
+            })
+            .disposed(by: disposeBag)
+        
+        menuSelection
+            .subscribe(onNext: { [weak self] index in
+                self?.handleMenuSelection(at: index)
+            })
+            .disposed(by: disposeBag)
+    }
+    
+    private func setupMenuItems() {
         let currentName = userDefaults.loadTamagochiName()
         
-        menuItems = [
+        let menuItems: [TamaSubModel] = [
             TamaSubModel(menuType: .changeName, subtitle: currentName),
             TamaSubModel(menuType: .changeTamagochi),
             TamaSubModel(menuType: .resetData)
         ]
+        
+        settingItemsSubject.onNext(menuItems)
+    }
+    
+    private func handleMenuSelection(at index: Int) {
+        let currentItems = try! settingItemsSubject.value()
+        guard index < currentItems.count else { return }
+        
+        let selectedMenu = currentItems[index]
+        
+        switch selectedMenu.menuType {
+        case .changeName:
+            showNameChangeScreenSubject.onNext(())
+        case .changeTamagochi:
+            showTamagochiChangeScreenSubject.onNext(())
+        case .resetData:
+            showDataResetAlertSubject.onNext(())
+        }
     }
 }

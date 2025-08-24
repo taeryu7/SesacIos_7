@@ -7,10 +7,11 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class TamaDetailViewController: UIViewController {
     
-    // UI 요소들
     let backgroundView = UIView()
     let containerView = UIView()
     let tamagochiImageView = UIImageView()
@@ -20,13 +21,12 @@ class TamaDetailViewController: UIViewController {
     let startButton = UIButton()
     let cancelButton = UIButton()
     
-    // ViewModel
     private var viewModel: TamaDetailViewModel?
+    private let disposeBag = DisposeBag()
     
-    // 데이터
     var selectedTamagochiType: String?
     var onStartButtonTapped: ((String) -> Void)?
-    var isChangingMode = false // 다마고치 변경 모드인지 여부
+    var isChangingMode = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,56 +36,59 @@ class TamaDetailViewController: UIViewController {
         configureLayout()
         bindViewModel()
         
-        viewModel?.viewDidLoad()
+        viewModel?.viewDidLoadTrigger.onNext(())
     }
     
-    // ViewModel 설정
     private func setupViewModel() {
         guard let selectedType = selectedTamagochiType else { return }
         viewModel = TamaDetailViewModel(
             selectedTamagochiType: selectedType,
-            isChangingMode: isChangingMode,
-            onStartButtonTapped: onStartButtonTapped
+            isChangingMode: isChangingMode
         )
     }
     
-    // ViewModel 바인딩
     private func bindViewModel() {
-        viewModel?.detailModel = { [weak self] model in
-            DispatchQueue.main.async {
+        guard let viewModel = viewModel else { return }
+        
+        startButton.rx.tap
+            .bind(to: viewModel.startButtonTap)
+            .disposed(by: disposeBag)
+        
+        cancelButton.rx.tap
+            .bind(to: viewModel.cancelButtonTap)
+            .disposed(by: disposeBag)
+        
+        let tapGesture = UITapGestureRecognizer()
+        backgroundView.addGestureRecognizer(tapGesture)
+        tapGesture.rx.event
+            .map { _ in () }
+            .bind(to: viewModel.backgroundTap)
+            .disposed(by: disposeBag)
+        
+        viewModel.detailModel
+            .drive(onNext: { [weak self] model in
                 self?.updateUI(with: model)
-            }
-        }
+            })
+            .disposed(by: disposeBag)
         
-        viewModel?.dismissView = { [weak self] in
-            DispatchQueue.main.async {
+        viewModel.dismissView
+            .drive(onNext: { [weak self] in
                 self?.dismiss(animated: true)
-            }
-        }
+            })
+            .disposed(by: disposeBag)
         
-        viewModel?.startAction = { [weak self] selectedType in
-            self?.onStartButtonTapped?(selectedType)
-        }
+        viewModel.startAction
+            .drive(onNext: { [weak self] selectedType in
+                self?.onStartButtonTapped?(selectedType)
+            })
+            .disposed(by: disposeBag)
     }
     
-    // UI 업데이트
     private func updateUI(with model: TamaDetailModel) {
         tamagochiImageView.image = UIImage(named: model.imageName) ?? UIImage(named: "noImage")
         nameLabel.text = model.name
         descriptionLabel.text = model.description
         startButton.setTitle(model.buttonTitle, for: .normal)
-    }
-    
-    @objc private func startButtonTapped() {
-        viewModel?.startButtonTapped()
-    }
-    
-    @objc private func cancelButtonTapped() {
-        viewModel?.cancelButtonTapped()
-    }
-    
-    @objc private func backgroundTapped() {
-        viewModel?.backgroundTapped()
     }
 }
 
@@ -108,9 +111,6 @@ extension TamaDetailViewController {
         }
         backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
-        backgroundView.addGestureRecognizer(tapGesture)
-        
         containerView.snp.makeConstraints { make in
             make.center.equalTo(view)
             make.width.equalTo(300)
@@ -123,7 +123,6 @@ extension TamaDetailViewController {
         containerView.layer.shadowOffset = CGSize(width: 0, height: 4)
         containerView.layer.shadowRadius = 8
         
-        // 다마고치 이미지
         tamagochiImageView.snp.makeConstraints { make in
             make.top.equalTo(containerView).offset(30)
             make.centerX.equalTo(containerView)
@@ -133,7 +132,6 @@ extension TamaDetailViewController {
         tamagochiImageView.backgroundColor = .systemGray6
         tamagochiImageView.layer.cornerRadius = 75
         
-        // 다마고치 이름
         nameLabel.snp.makeConstraints { make in
             make.top.equalTo(tamagochiImageView.snp.bottom).offset(20)
             make.leading.equalTo(containerView).offset(20)
@@ -143,7 +141,6 @@ extension TamaDetailViewController {
         nameLabel.textAlignment = .center
         nameLabel.textColor = .label
         
-        // 구분선
         separatorLine.snp.makeConstraints { make in
             make.top.equalTo(nameLabel.snp.bottom).offset(15)
             make.leading.equalTo(containerView).offset(40)
@@ -152,7 +149,6 @@ extension TamaDetailViewController {
         }
         separatorLine.backgroundColor = .systemGray4
         
-        // 설명 라벨
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(separatorLine.snp.bottom).offset(20)
             make.leading.equalTo(containerView).offset(20)
@@ -164,7 +160,6 @@ extension TamaDetailViewController {
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textColor = .label
         
-        // 취소 버튼 (왼쪽)
         cancelButton.snp.makeConstraints { make in
             make.bottom.equalTo(containerView)
             make.leading.equalTo(containerView)
@@ -176,9 +171,7 @@ extension TamaDetailViewController {
         cancelButton.setTitleColor(.label, for: .normal)
         cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         cancelButton.layer.cornerRadius = 0
-        cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         
-        // 시작하기 버튼 (오른쪽)
         startButton.snp.makeConstraints { make in
             make.bottom.equalTo(containerView)
             make.leading.equalTo(containerView.snp.centerX)
@@ -190,7 +183,6 @@ extension TamaDetailViewController {
         startButton.setTitleColor(.white, for: .normal)
         startButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         startButton.layer.cornerRadius = 0
-        startButton.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
     }
 }
 

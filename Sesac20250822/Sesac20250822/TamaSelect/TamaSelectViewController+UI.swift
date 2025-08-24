@@ -88,9 +88,6 @@ extension TamaSelectViewController {
             make.bottom.equalTo(containerView)
         }
         
-        // 탭 제스처 추가
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(activeTamagochiTapped(_:)))
-        containerView.addGestureRecognizer(tapGesture)
         
         return containerView
     }
